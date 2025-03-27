@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rl_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:layout_above="@+id/nativeTemplateView1"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <RadioGroup
+        android:id="@+id/rg_views"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="35dp"
+        android:background="@android:drawable/dialog_holo_light_frame"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <RadioButton
+            android:id="@+id/rb_dark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dark"
+            android:textColor="@android:color/black"
+            android:textStyle="bold" />
+
+
+        <RadioButton
+            android:id="@+id/rb_retro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Normal"
+            android:textColor="@android:color/black"
+            android:textStyle="bold" />
+
+        <RadioButton
+            android:id="@+id/rb_sat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Satellite"
+            android:textColor="@android:color/black"
+            android:textStyle="bold" />
+
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/tx_travel_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="25dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_directions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="7dp"
+        android:layout_marginTop="7dp"
+        android:src="@android:drawable/ic_menu_directions"
+        android:visibility="invisible"
+        app:backgroundTint="@android:color/white"
+        app:fabSize="mini" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvNearbyPlaces"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/btn_pl_nearby"
+        android:visibility="invisible" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_turndirections"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fab_directions"
+        android:layout_alignRight="@+id/fab_directions"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:src="@drawable/turn_by_turn"
+        android:text="Turn-By-Turn"
+        android:visibility="invisible"
+        app:backgroundTint="@android:color/white" />
+
+    <TextView
+        android:id="@+id/btn_pl_nearby"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rg_views"
+        android:layout_centerHorizontal="true"
+        android:background="@android:color/white"
+        android:padding="5dp"
+        android:text="Nearby Places"
+        android:textColor="@android:color/black"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/btn_remove_fences"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btn_pl_nearby"
+        android:layout_centerHorizontal="true"
+        android:background="@android:color/white"
+        android:padding="5dp"
+        android:text="Remove all Reminders"
+        android:textColor="@android:color/black" />
+
+
+    <ImageButton
+        android:id="@+id/map_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rg_views"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="@dimen/fab_margin"
+        android:background="@android:color/transparent"
+        android:src="@drawable/expand" />
+
+
+    <HorizontalScrollView
+        android:id="@+id/h_scrollview"
+        android:layout_above="@+id/nativeTemplateView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="horizontal">
+
+        <LinearLayout
+            android:background="@color/gnt_black"
+            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/ll_temple"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:background="#ffffff"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="temple"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/temple"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="10dp"
+                    android:rotation="0"
+                    android:text="Temple"
+                    android:onClick="POIclick"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_atm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:background="#ffffff"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="ATM"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/atm"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="10dp"
+                    android:rotation="0"
+                    android:text="ATM"
+                    android:onClick="POIclick"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_airport"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:background="#ffffff"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="airport"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/airport"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="10dp"
+                    android:rotation="0"
+                    android:text="Airport"
+                    android:onClick="POIclick"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:background="#ffffff"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Bar"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/bar"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="10dp"
+                    android:rotation="0"
+                    android:text="Bar"
+                    android:onClick="POIclick"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_hospital"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:background="#ffffff"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Hospital"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/hospital"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="10dp"
+                    android:rotation="0"
+                    android:text="Hospital"
+                    android:onClick="POIclick"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_mall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:background="#ffffff"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="mall"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/mall"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="10dp"
+                    android:rotation="0"
+                    android:text="Mall"
+                    android:onClick="POIclick"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_theatre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:background="#ffffff"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Theatre"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/movietheater"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="10dp"
+                    android:rotation="0"
+                    android:text="Theatre"
+                    android:onClick="POIclick"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_restaurant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:background="#ffffff"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="temple"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/restaurant"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="10dp"
+                    android:rotation="0"
+                    android:text="Restaurant"
+                    android:onClick="POIclick"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_school"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:background="#ffffff"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="temple"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/school"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="10dp"
+                    android:rotation="0"
+                    android:text="School"
+                    android:onClick="POIclick"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_train"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:background="#ffffff"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Train Stn"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/trainstation"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="10dp"
+                    android:rotation="0"
+                    android:text="Train Stn"
+                    android:onClick="POIclick"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+
+
+    <TextView
+        android:id="@+id/tx_place_details"
+        android:text="Place Details . . ."
+        android:layout_margin="@dimen/fab_margin"
+        android:textStyle="bold"
+        android:textSize="15sp"
+        android:textColor="@android:color/black"
+        android:typeface="serif"
+        android:layout_below="@+id/nativeTemplateView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <fragment
+        android:id="@+id/streetviewpanorama"
+        android:layout_below="@+id/nativeTemplateView1"
+        android:layout_alignParentBottom="true"
+        class="com.google.android.gms.maps.SupportStreetViewPanoramaFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_places"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/tx_place_details"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/airport"/>
+
+    <ImageButton
+        android:id="@+id/imgbtn_street_expand_contract"
+        android:src="@drawable/expand"
+        android:layout_above="@+id/nativeTemplateView2"
+        android:layout_alignParentStart="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+    <EditText
+        android:id="@+id/edtx_search"
+        android:imeOptions="actionSend"
+        android:inputType="text"
+        android:visibility="invisible"
+        android:hint="Search a Place you'd like to see.."
+        android:layout_alignBottom="@+id/fab_places"
+        android:layout_toLeftOf="@+id/fab_places"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <com.google.android.ads.nativetemplates.TemplateView
+        android:id= "@+id/nativeTemplateView2"
+        android:visibility="invisible"
+        android:layout_alignParentBottom="true"
+        app:gnt_template_type= "@layout/gnt_small_template_view"
+        android:layout_width= "match_parent"
+        android:layout_height= "wrap_content" />
+
+    <com.google.android.ads.nativetemplates.TemplateView
+        android:id= "@+id/nativeTemplateView1"
+        app:gnt_template_type= "@layout/gnt_small_template_view"
+        android:layout_width= "match_parent"
+        android:layout_height= "wrap_content" />
+
+
+</RelativeLayout>
+
