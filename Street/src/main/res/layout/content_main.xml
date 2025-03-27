@@ -125,7 +125,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/rg_views"
-        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="true"
         android:layout_margin="@dimen/fab_margin"
         android:background="@android:color/transparent"
         android:src="@drawable/expand" />
@@ -139,7 +139,7 @@
         android:scrollbars="horizontal">
 
         <LinearLayout
-            android:background="@color/gnt_black"
+            android:background="@android:color/transparent"
             android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -497,8 +497,9 @@
     <ImageButton
         android:id="@+id/imgbtn_street_expand_contract"
         android:src="@drawable/expand"
-        android:layout_above="@+id/nativeTemplateView2"
-        android:layout_alignParentStart="true"
+        android:layout_margin="@dimen/fab_margin"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 

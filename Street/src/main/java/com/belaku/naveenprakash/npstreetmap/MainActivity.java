@@ -22,6 +22,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -213,6 +214,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     private ImageButton imgbtn_street_expand_contract;
     private ArrayList<Places> placesNearby;
     private Polyline polyLineRoute;
+    private Marker markerAddress;
 
 
     @Override
@@ -581,12 +583,31 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         if (mSupportMapFragment.getView().getLayoutParams().height != ViewGroup.LayoutParams.MATCH_PARENT) {
             mSupportMapFragment.getView().setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             mSupportMapFragment.getView().bringToFront();
+            RelativeLayout.LayoutParams rlpb = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            rlpb.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            rlpb.bottomMargin = 100;
+            hScrollViewPlaces.setLayoutParams(rlpb);
             loadFS();
         } else {
+            MyGmap.clear();
+            BitmapDescriptor icon = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                IconGenerator icnGenerator = new IconGenerator(this);
+                Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddress + "</font></b>"));
+                icon = BitmapDescriptorFactory.fromBitmap(bmp);
+            }
+            markerOptions = new MarkerOptions()
+                    .position(mLatLng).icon(icon);
+
+            //    marker = googleMap.addMarker(markerOptions);
+            markerAddress = MyGmap.addMarker(markerOptions);
             templateView1.bringToFront();
             templateView2.bringToFront();
             RelativeLayout.LayoutParams rlpSP = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight);
-            rlpSP.addRule(RelativeLayout.ABOVE, hScrollViewPlaces.getId());
+            rlpSP.addRule(RelativeLayout.ABOVE, templateView1.getId());
+            RelativeLayout.LayoutParams rlpb = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            rlpb.addRule(RelativeLayout.ABOVE, templateView1.getId());
+            hScrollViewPlaces.setLayoutParams(rlpb);
             mSupportMapFragment.getView().setLayoutParams(rlpSP);
         }
 
@@ -955,6 +976,20 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
     private void InitRoutes(final LatLng srcLatLng, final LatLng destLatLng) {
 
+
+        {
+            markerAddress.remove();
+            BitmapDescriptor icon = null;
+            IconGenerator icnGenerator = new IconGenerator(this);
+            icnGenerator.setBackground(getDrawable(R.drawable.border));
+
+            Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddress + "</font></b>"));
+            icon = BitmapDescriptorFactory.fromBitmap(bmp);
+            markerOptions.icon(icon);
+            MyGmap.addMarker(markerOptions);
+        }
+
+
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
         destLocation = destLatLng;
@@ -972,8 +1007,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         MyGmap.animateCamera(cu);
 
         String strTransportMode = strTransportMode = "TransportMode.DRIVING";
-        ;
-        makeToast("Tr by - " + strTransportMode);
 
         String serverKey = "AIzaSyB4hJ-5vcOeTOsAiK8CpQ5uPD4D7LPArIE";
         GoogleDirection.withServerKey(serverKey)
@@ -996,7 +1029,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                             Leg leg = route.getLegList().get(0);
 
                             ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
-                            PolylineOptions polylineOptions = DirectionConverter.createPolyline(getApplicationContext(), directionPositionList, 5, Color.GREEN);
+                            PolylineOptions polylineOptions = DirectionConverter.createPolyline(getApplicationContext(), directionPositionList, 5, Color.BLUE);
                             polyLineRoute = MyGmap.addPolyline(polylineOptions);
 
 
@@ -1409,18 +1442,15 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
                 BitmapDescriptor icon = null;
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-
                     IconGenerator icnGenerator = new IconGenerator(this);
-                    icnGenerator.setBackground(getResources().getDrawable(android.R.color.holo_green_light));
-
-                    Bitmap bmp = icnGenerator.makeIcon(mAddress);
+                    Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddress + "</font></b>"));
                     icon = BitmapDescriptorFactory.fromBitmap(bmp);
-                };
+                }
                 markerOptions = new MarkerOptions()
                         .position(mLatLng).icon(icon);
 
                 //    marker = googleMap.addMarker(markerOptions);
-                Objects.requireNonNull(MyGmap.addMarker(markerOptions));
+                markerAddress = MyGmap.addMarker(markerOptions);
                 pd.dismiss();
 
                 //      googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mLatLng, 10));
@@ -1534,8 +1564,17 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
         for (int i = 0; i < nPlaces.size(); i++) {
             LatLng latLng = new LatLng(nPlaces.get(i).geocodes.main.latitude, nPlaces.get(i).geocodes.main.longitude);
-            Bitmap icon = new IconGenerator(MainActivity.this).makeIcon(nPlaces.get(i).name);
-            MarkerOptions markerOptionsNearby = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromBitmap(icon));
+         //   Bitmap icon = new IconGenerator(MainActivity.this).makeIcon(nPlaces.get(i).name);
+            BitmapDescriptor icon = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+
+                IconGenerator icnGenerator = new IconGenerator(this);
+             //   icnGenerator.setBackground(getResources().getDrawable(R.drawable.border));
+
+                Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + nPlaces.get(i).name + "</font></b>"));
+                icon = BitmapDescriptorFactory.fromBitmap(bmp);
+            }
+            MarkerOptions markerOptionsNearby = new MarkerOptions().position(latLng).icon(icon);
             markerOptionsNearby.title(nPlaces.get(i).name);
             MyGmap.addMarker(markerOptionsNearby);
         }
