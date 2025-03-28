@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                 if (actionId == EditorInfo.IME_ACTION_SEND) {
                     aPlaceSearched = true;
                     searchPlace(editTextPlaceStreet.getText().toString());
-                 //   editTextPlace.setVisibility(View.INVISIBLE);
+                    //   editTextPlace.setVisibility(View.INVISIBLE);
                     handled = true;
                 }
                 return handled;
@@ -443,9 +443,13 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
         if (mSupportStreetViewPanoramaFragment.getView().getLayoutParams().height != ViewGroup.LayoutParams.MATCH_PARENT) {
             loadFS();
+            editTextPlaceStreet.setVisibility(View.VISIBLE);
+            fabPlaces.setVisibility(View.VISIBLE);
             mSupportStreetViewPanoramaFragment.getView().setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             mSupportStreetViewPanoramaFragment.getView().bringToFront();
         } else {
+            editTextPlaceStreet.setVisibility(View.INVISIBLE);
+            fabPlaces.setVisibility(View.INVISIBLE);
             templateView1.bringToFront();
             RelativeLayout.LayoutParams rlpSP = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight);
             rlpSP.addRule(RelativeLayout.ABOVE, templateView1.getId());
@@ -454,10 +458,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         editTextPlaceStreet.bringToFront();
         TxPlaceDetails.bringToFront();
         imgbtn_street_expand_contract.bringToFront();
-        /*templateView1.bringToFront();
-        templateView2.bringToFront();*/
-
-        //  mSupportStreetViewPanoramaFragment.getView().bringToFront();
     }
 
 
@@ -478,11 +478,19 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         if (mSupportMapFragment.getView().getLayoutParams().height != ViewGroup.LayoutParams.MATCH_PARENT) {
             mSupportMapFragment.getView().setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             mSupportMapFragment.getView().bringToFront();
+
             hScrollViewPlaces.setVisibility(View.VISIBLE);
+            rgViews.setVisibility(View.VISIBLE);
+            editTextPlaceMap.setVisibility(View.VISIBLE);
+
             loadFS();
         } else {
+
+            hScrollViewPlaces.setVisibility(View.INVISIBLE);
+            rgViews.setVisibility(View.INVISIBLE);
+            editTextPlaceMap.setVisibility(View.INVISIBLE);
+
             MyGmap.clear();
-            fabTurnByTurnDirections.setVisibility(View.INVISIBLE);
             addPresentMarker();
             templateView1.bringToFront();
             RelativeLayout.LayoutParams rlpSP = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight);
@@ -494,8 +502,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         hScrollViewPlaces.bringToFront();
         mapSize.bringToFront();
         rgViews.bringToFront();
-        /*templateView1.bringToFront();
-        templateView2.bringToFront();*/
+        editTextPlaceMap.bringToFront();
     }
 
     private @NonNull RvAdapter getRvAdapter() {
@@ -539,7 +546,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         }).build();
 
 
-
         showNativeAd1();
 
     }
@@ -561,10 +567,10 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         }
 
 
-            //Load the Native ad if it is not loaded
+        //Load the Native ad if it is not loaded
 
-            // Showing a simple Toast message to user when Native ad is not loaded
-            //     Toast.makeText(MainActivity.this, "Native Ad is not Loaded ", Toast.LENGTH_LONG).show();
+        // Showing a simple Toast message to user when Native ad is not loaded
+        //     Toast.makeText(MainActivity.this, "Native Ad is not Loaded ", Toast.LENGTH_LONG).show();
 
 
     }
@@ -752,34 +758,18 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     private void InitRoutes(final LatLng srcLatLng, final LatLng destLatLng) {
 
         {
-            markerAddress.remove();
-            BitmapDescriptor icon;
-            IconGenerator icnGenerator = new IconGenerator(this);
-            icnGenerator.setBackground(getDrawable(R.drawable.border));
-
-            Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddress + "</font></b>"));
-            icon = BitmapDescriptorFactory.fromBitmap(bmp);
-            markerOptions.icon(icon);
-            MyGmap.addMarker(markerOptions);
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            builder.include(srcLatLng);
+            builder.include(destLatLng);
+            LatLngBounds bounds = builder.build();
+            int padding = 450; // offset from edges of the map in pixels
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+            MyGmap.moveCamera(cu);
         }
 
 
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-        destLocation = destLatLng;
-
-        builder.include(srcLatLng);
-        builder.include(destLatLng);
-
-        LatLngBounds bounds = builder.build();
-
-        int padding =  (screenWidth * 1); // offset from edges of the map 10% of screen
-
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, screenWidth, screenHeight, padding);
-
-        MyGmap.animateCamera(cu);
-
-        String strTransportMode = strTransportMode = "TransportMode.DRIVING";
+        String strTransportMode  = "TransportMode.DRIVING";
 
         String serverKey = "AIzaSyB4hJ-5vcOeTOsAiK8CpQ5uPD4D7LPArIE";
         GoogleDirection.withServerKey(serverKey)
@@ -886,7 +876,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         }
         return false;
     }
-
 
 
     @Override
@@ -1045,7 +1034,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                                 } else {
                                     delayCount++;
                                     if (delayCount == 1)
-                                    pd.setMessage("fetching Location.");
+                                        pd.setMessage("fetching Location.");
                                     else if (delayCount == 2)
                                         pd.setMessage("fetching Location..");
                                     else if (delayCount == 3)
@@ -1060,8 +1049,10 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                                         pd.setMessage("fetching Location.......");
                                     else if (delayCount == 8)
                                         pd.setMessage("fetching Location........");
-                                    else if (delayCount == 9)
-                                        pd.setMessage("Poor Connectivity, wait for some more time OR try again, later");
+                                    else if (delayCount == 9) {
+                                        pd.setMessage("Poor Connectivity, please wait for some more time OR try again, later");
+                                        TxPlaceDetails.setText("No Pic found for this Place!");
+                                    }
                                     handler.postDelayed(this, delay);
                                 }
                             }
@@ -1134,7 +1125,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         //      Snackbar.make(getWindow().getDecorView().getRootView(), s + "\n \n \n", Snackbar.LENGTH_SHORT).show();
     }
 
-    @SuppressLint({"MissingPermission", "ResourceAsColor"})
+    @SuppressLint({"MissingPermission", "ResourceAsColor", "PotentialBehaviorOverride"})
     @Override
     public void onMapReady(final GoogleMap googleMap) {
 
@@ -1211,8 +1202,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                     mAddress = getAddress(addressLatitude, addressLongitude).get(0).getAddressLine(0);
 
                     mAddresses = mAddress.split(",");
-                 //   mAddress = mAddress.substring(0, StringUtils.ordinalIndexOf(mAddress, ",", 3));
-                    //  mAddress = String.valueOf(StringUtils.ordinalIndexOf(mAddress, ",", 3));
                 }
 
                 addPresentMarker();
@@ -1228,8 +1217,8 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         BitmapDescriptor icon = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             IconGenerator icnGenerator = new IconGenerator(this);
-           // Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddresses[0] + mAddresses[1] + mAddresses[2] + "\n" + mAddresses[3] + mAddresses[4] + "</font></b>"));
-            Bitmap bmp = icnGenerator.makeIcon((mAddresses[0] + "," + mAddresses[1] + "," + mAddresses[2] + "," + "\n\t\t\t\t\t\t\t\t\t" + mAddresses[3] + "," + mAddresses[4]));
+            // Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddresses[0] + mAddresses[1] + mAddresses[2] + "\n" + mAddresses[3] + mAddresses[4] + "</font></b>"));
+            Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<span style=\"color: #000000\"><b>" + mAddresses[0] + "," + mAddresses[1] + "," + mAddresses[2] + "," + "<br> &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; " + mAddresses[3] + "," + mAddresses[4] + "</b></span>"));
             icon = BitmapDescriptorFactory.fromBitmap(bmp);
         }
         markerOptions = new MarkerOptions()
@@ -1337,12 +1326,12 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
         for (int i = 0; i < nPlaces.size(); i++) {
             LatLng latLng = new LatLng(nPlaces.get(i).geocodes.main.latitude, nPlaces.get(i).geocodes.main.longitude);
-         //   Bitmap icon = new IconGenerator(MainActivity.this).makeIcon(nPlaces.get(i).name);
+            //   Bitmap icon = new IconGenerator(MainActivity.this).makeIcon(nPlaces.get(i).name);
             BitmapDescriptor icon = null;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
 
                 IconGenerator icnGenerator = new IconGenerator(this);
-             //   icnGenerator.setBackground(getResources().getDrawable(R.drawable.border));
+                //   icnGenerator.setBackground(getResources().getDrawable(R.drawable.border));
 
                 Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + nPlaces.get(i).name + "</font></b>"));
                 icon = BitmapDescriptorFactory.fromBitmap(bmp);

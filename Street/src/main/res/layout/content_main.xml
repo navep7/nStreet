@@ -29,11 +29,12 @@
 
     <RadioGroup
         android:id="@+id/rg_views"
+        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/nativeTemplateView1"
+        android:layout_above="@+id/h_scrollview"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="35dp"
+        android:layout_margin="@dimen/fab_margin"
         android:background="@android:drawable/dialog_holo_light_frame"
         android:orientation="horizontal"
         android:padding="10dp">
@@ -67,15 +68,9 @@
 
     </RadioGroup>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvNearbyPlaces"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/btn_pl_nearby"
-        android:visibility="invisible" />
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_turndirections"
+        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/map_size"
@@ -83,26 +78,13 @@
         android:layout_marginTop="@dimen/fab_margin"
         android:src="@drawable/turn_by_turn"
         android:text="Turn-By-Turn"
-        android:visibility="invisible"
         app:backgroundTint="@android:color/white" />
 
     <TextView
-        android:id="@+id/btn_pl_nearby"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/rg_views"
-        android:layout_centerHorizontal="true"
-        android:background="@android:color/white"
-        android:padding="5dp"
-        android:text="Nearby Places"
-        android:textColor="@android:color/black"
-        android:visibility="invisible" />
-
-    <TextView
         android:id="@+id/btn_remove_fences"
+        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btn_pl_nearby"
         android:layout_centerHorizontal="true"
         android:background="@android:color/white"
         android:padding="5dp"
@@ -114,15 +96,15 @@
         android:id="@+id/map_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rg_views"
+        android:layout_above="@+id/h_scrollview"
         android:layout_alignParentEnd="true"
         android:layout_margin="@dimen/fab_margin"
-        android:background="@android:color/transparent"
         android:src="@drawable/expand" />
 
 
     <HorizontalScrollView
         android:id="@+id/h_scrollview"
+        android:visibility="invisible"
         android:layout_marginBottom="50dp"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
@@ -455,12 +437,13 @@
     <TextView
         android:id="@+id/tx_place_details"
         android:text="Place Details . . ."
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginStart="@dimen/fab_margin"
         android:textStyle="bold"
         android:textSize="15sp"
         android:textColor="@android:color/black"
         android:typeface="serif"
-        android:layout_above="@+id/nativeTemplateView1"
+        android:layout_above="@+id/imgbtn_street_expand_contract"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -468,28 +451,35 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_places"
+        app:fabSize="mini"
+        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:layout_above="@+id/tx_place_details"
+        android:layout_marginEnd="25dp"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="50dp"
         android:layout_alignParentEnd="true"
         android:src="@drawable/airport"/>
 
     <ImageButton
         android:id="@+id/imgbtn_street_expand_contract"
         android:src="@drawable/expand"
-        android:layout_above="@+id/tx_place_details"
-        android:layout_alignParentStart="true"
+        android:layout_above="@+id/nativeTemplateView1"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
 
     <EditText
         android:id="@+id/edtx_search_street"
+        android:visibility="invisible"
         android:imeOptions="actionSend"
         android:inputType="text"
         android:background="@drawable/border"
-        android:hint="Search a Place you'd like to see.."
+        android:hint=" Search a Place you'd like to See "
         android:layout_alignBottom="@+id/fab_places"
         android:layout_toStartOf="@+id/fab_places"
         android:layout_width="wrap_content"
@@ -498,24 +488,16 @@
 
     <EditText
         android:id="@+id/edtx_search_map"
+        android:visibility="invisible"
         android:imeOptions="actionSend"
         android:inputType="text"
         android:background="@drawable/border"
-        android:hint="Search a Place you'd like to Go.."
-        android:layout_below="@+id/rg_views"
-        android:layout_centerHorizontal="true"
+        android:hint=" Search a Place you'd like to Go "
+        android:layout_alignBottom="@+id/fab_places"
+        android:layout_toStartOf="@+id/fab_places"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:ignore="HardcodedText" />
-
-
-    <com.google.android.ads.nativetemplates.TemplateView
-        android:id= "@+id/nativeTemplateView2"
-        android:visibility="invisible"
-        android:layout_alignParentBottom="true"
-        app:gnt_template_type= "@layout/gnt_small_template_view"
-        android:layout_width= "match_parent"
-        android:layout_height= "wrap_content" />
+        tools:ignore="HardcodedText"  />
 
     <com.google.android.ads.nativetemplates.TemplateView
         android:id= "@+id/nativeTemplateView1"
