@@ -759,6 +759,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
     private void InitRoutes(final LatLng srcLatLng, final LatLng destLatLng) {
 
+        destLocation = destLatLng;
         {
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             builder.include(srcLatLng);
