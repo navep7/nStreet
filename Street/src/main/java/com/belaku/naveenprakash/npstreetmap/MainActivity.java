@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
@@ -72,8 +73,12 @@ import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -102,6 +107,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.ui.IconGenerator;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -205,6 +211,9 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     private String[] mAddresses;
     private boolean aPlaceSearched = false;
     private int delayCount = 0;
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
 
 
     @Override
@@ -896,6 +905,9 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     protected void onDestroy() {
         super.onDestroy();
 
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+
+
     }
 
     private void getTimeandDate() {
@@ -926,8 +938,9 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             public void gotLocation(Location location) {
                 //Got the location!
                 processLocation(location);
+                locationUpdates();
 
-                //     Toast.makeText(getApplicationContext(), location.getLatitude() + " : " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+                     Toast.makeText(getApplicationContext(), location.getLatitude() + " : " + location.getLongitude(), Toast.LENGTH_SHORT).show();
             }
         };
         MyLocation myLocation = new MyLocation();
@@ -1071,6 +1084,43 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         //    makeToast("Latitude - " + location.getLatitude() + "\n Longitude - " + location.getLongitude());
 
         //yet2implUpdates
+
+
+    }
+
+    @SuppressLint("MissingPermission")
+    private void locationUpdates() {
+
+
+
+        makeToast("Rqstg L Updates!");
+        //Instantiating the Location request and setting the priority and the interval I need to update the location.
+        locationRequest = LocationRequest.create();
+        locationRequest.setInterval(60000);
+        locationRequest.setSmallestDisplacement(5);
+        locationRequest.setFastestInterval(10000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+
+//instantiating the LocationCallBack
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult != null) {
+                    Location location = locationResult.getLastLocation();
+                    makeToast(MessageFormat.format("Lat: {0} Long: {1} Accuracy: {2}", location.getLatitude(),
+                            location.getLongitude(), location.getAccuracy()));
+                    processLocation(location);
+                    //Showing the latitude, longitude and accuracy on the home screen.
+                  /*  for (Location location : locationResult.getLocations()) {
+
+                    }*/
+                }
+            }
+        };
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
 
     }
 
