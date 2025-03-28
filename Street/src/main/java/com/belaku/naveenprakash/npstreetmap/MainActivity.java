@@ -113,7 +113,7 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-//STYLING KET - AIzaSyCQ_rTIUq6Tt53kfCK0etW_7HgXZQeYO8s
+//STYLING KEY - AIzaSyCQ_rTIUq6Tt53kfCK0etW_7HgXZQeYO8s
 
 //Google Places API key - AIzaSyCg2S0L5a79T8XgOozcP76lFdnYmyblWgU
 
@@ -204,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     private Marker markerAddress;
     private String[] mAddresses;
     private boolean aPlaceSearched = false;
+    private int delayCount = 0;
 
 
     @Override
@@ -1002,27 +1003,16 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                             MyGmap.setMapStyle(
                                     MapStyleOptions.loadRawResourceStyle(
                                             getApplicationContext(), R.raw.dark_style));
-
-                        } /*else if (checkedId == R.id.rb_light) {   //light
-                            //       addrs.setTextColor(getResources().getColor(R.color.Red));
-                            MyGmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                            MyGmap.setMapStyle(
-                                    MapStyleOptions.loadRawResourceStyle(
-                                            getApplicationContext(), R.raw.light_style));
-                        }*/ else if (checkedId == R.id.rb_retro) {  //retro
-                            //       addrs.setTextColor(getResources().getColor(R.color.Black));                     //2day
+                        } else if (checkedId == R.id.rb_retro) {  //retro
                             MyGmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                             MyGmap.setMapStyle(
                                     MapStyleOptions.loadRawResourceStyle(
                                             getApplicationContext(), R.raw.norm_style));
-
                         } else if (checkedId == R.id.rb_sat) {  //retro
-                            //       addrs.setTextColor(getResources().getColor(R.color.Black));                     //2day
                             MyGmap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                             MyGmap.setMapStyle(
                                     MapStyleOptions.loadRawResourceStyle(
                                             getApplicationContext(), R.raw.gray_style));
-
                         }
                     }
                 });
@@ -1039,16 +1029,43 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                                         .build();
                         mStreetViewPanorama.animateTo(mStreetViewPanoramaCamera, 1000);
                         streetHandler.postDelayed(this, streetDelay);
-                        streetHandler.postDelayed(new Runnable() {
+
+                        final Handler handler = new Handler();
+                        final int delay = 1000; // 1000 milliseconds == 1 second
+
+
+                        handler.postDelayed(new Runnable() {
                             public void run() {
-                                if (mStreetViewPanorama.getLocation() != null)
-                                    if (!aPlaceSearched)
+                                if (mStreetViewPanorama.getLocation() != null) {
+                                    if (!aPlaceSearched) {
                                         TxPlaceDetails.setText("a Place, nearby...\n\n" + (String.valueOf(getAddress(mStreetViewPanorama.getLocation().position.latitude, mStreetViewPanorama.getLocation().position.longitude).get(0).getAddressLine(0).toString())));
-                                    else
+                                        pd.dismiss();
+                                    } else
                                         TxPlaceDetails.setText("a Place, searched...\n\n" + (String.valueOf(getAddress(mStreetViewPanorama.getLocation().position.latitude, mStreetViewPanorama.getLocation().position.longitude).get(0).getAddressLine(0).toString())));
-                                else TxPlaceDetails.setText("No Pic available nearby");
+                                } else {
+                                    delayCount++;
+                                    if (delayCount == 1)
+                                    pd.setMessage("fetching Location.");
+                                    else if (delayCount == 2)
+                                        pd.setMessage("fetching Location..");
+                                    else if (delayCount == 3)
+                                        pd.setMessage("fetching Location...");
+                                    else if (delayCount == 4)
+                                        pd.setMessage("fetching Location....");
+                                    else if (delayCount == 5)
+                                        pd.setMessage("fetching Location.....");
+                                    else if (delayCount == 6)
+                                        pd.setMessage("fetching Location......");
+                                    else if (delayCount == 7)
+                                        pd.setMessage("fetching Location.......");
+                                    else if (delayCount == 8)
+                                        pd.setMessage("fetching Location........");
+                                    else if (delayCount == 9)
+                                        pd.setMessage("Poor Connectivity, wait for some more time OR try again, later");
+                                    handler.postDelayed(this, delay);
+                                }
                             }
-                        }, 3000);
+                        }, delay);
                     }
                 }, streetDelay);
 
@@ -1199,8 +1216,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                 }
 
                 addPresentMarker();
-
-                pd.dismiss();
 
                 mapSize.bringToFront();
 
