@@ -475,8 +475,10 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
     private void fsMap() {
 
-        if (mSupportMapFragment.getView().getLayoutParams().height != ViewGroup.LayoutParams.MATCH_PARENT) {
-            mSupportMapFragment.getView().setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        if (mSupportMapFragment.getView().getLayoutParams().height != screenHeight - 150) {
+            RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight - 150);
+            rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            mSupportMapFragment.getView().setLayoutParams(rlp);
             mSupportMapFragment.getView().bringToFront();
 
             hScrollViewPlaces.setVisibility(View.VISIBLE);
