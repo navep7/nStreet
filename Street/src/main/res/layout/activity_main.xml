@@ -9,8 +9,6 @@
     android:background="#ffffff"
     tools:context="com.belaku.naveenprakash.npstreetmap.MainActivity">
 
-
-
     <include layout="@layout/content_main" />
 
 

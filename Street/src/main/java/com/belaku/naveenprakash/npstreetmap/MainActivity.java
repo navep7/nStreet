@@ -12,13 +12,12 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.ColorSpace;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -48,8 +47,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.akexorcist.googledirection.DirectionCallback;
 import com.akexorcist.googledirection.GoogleDirection;
@@ -102,27 +99,19 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
 import com.google.maps.android.ui.IconGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import org.apache.commons.lang3.StringUtils;
 
 //STYLING KET - AIzaSyCQ_rTIUq6Tt53kfCK0etW_7HgXZQeYO8s
 
@@ -145,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     private static MarkerOptions markerOptions;
     private SupportStreetViewPanoramaFragment mSupportStreetViewPanoramaFragment;
     public static StreetViewPanorama mStreetViewPanorama;
-    private FloatingActionButton fabGo, fabDirections, fabTurnByTurnDirections, fabSetWall;
+    private FloatingActionButton fabTurnByTurnDirections, fabSetWall;
 
     private RadioGroup rgViews;
     public static GoogleMap MyGmap;
@@ -191,7 +180,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             "Paris, France", "Quincy, Massachusetts, USA", "Rome, Roma Capitale, Italy", "Sydney, New South Wales, Australia", "Tokyo, Japan",
             "Uraguay Drive, Pasadena, TX 77504, USA", "Vancouver, BC, Canada", "Washington, District of Columbia, USA", "Xi'an, Shaanxi, China", "Yadiyūr, Tumkūr, India", "Zaragoza, Aragon, Spain");
     private List<LatLng> arrayListPlacesLatLng = new ArrayList<>();
-    private boolean fabPlaceClicked = false;
     private ImageButton mapSize;
     private boolean normalView = true;
     public static MarkerOptions markerOptionsGeoFence;
@@ -204,17 +192,18 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     public static RDBManager rdbManager;
     public static Geofence geofence;
     private FloatingActionButton fabPlaces;
-    private EditText editTextPlace;
+    private EditText editTextPlaceStreet, editTextPlaceMap;
     private ListView listViewPlaces;
     private AdLoader adLoader1, adLoader2;
     private boolean adLoaded1 = false, adLoaded2 = false;
-    TemplateView templateView1, templateView2;
-    private RecyclerView recyclerViewNearbyPlaces;
+    TemplateView templateView1;
     private HorizontalScrollView hScrollViewPlaces;
     private ImageButton imgbtn_street_expand_contract;
     private ArrayList<Places> placesNearby;
     private Polyline polyLineRoute;
     private Marker markerAddress;
+    private String[] mAddresses;
+    private boolean aPlaceSearched = false;
 
 
     @Override
@@ -235,22 +224,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         rlpHS.addRule(RelativeLayout.CENTER_VERTICAL);
         templateView1.setLayoutParams(rlpHS);
 
-        findViewById(R.id.btn_pl_nearby).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (recyclerViewNearbyPlaces.getVisibility() == View.VISIBLE)
-                    recyclerViewNearbyPlaces.setVisibility(View.INVISIBLE);
-                else recyclerViewNearbyPlaces.setVisibility(View.VISIBLE);
-            }
-        });
-
-
-        recyclerViewNearbyPlaces = findViewById(R.id.rvNearbyPlaces);
-        recyclerViewNearbyPlaces.bringToFront();
-        int numberOfColumns = 6;
-        recyclerViewNearbyPlaces.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
-        RvAdapter adapter = getRvAdapter();
-        recyclerViewNearbyPlaces.setAdapter(adapter);
 
         mSupportMapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -313,12 +286,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             }
         });
 
-        //    fabGo = findViewById(R.id.fab_go);
-        fabDirections = findViewById(R.id.fab_directions);
-
-
-//        bottomSheet = findViewById(R.id.bottom_sheet_streetpic);
-        //      sheetBehavior = BottomSheetBehavior.from(bottomSheet);
 
         ArrayList<String> cList = new ArrayList<String>();
 
@@ -334,76 +301,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         }
 
 
-
-/*
-        fabDirections.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-
-
-                Intent intent = new PlaceAutocomplete.IntentBuilder()
-                        .accessToken(getResources().getString(R.string.mapbox_token))
-                        .placeOptions(PlaceOptions.builder()
-                                .backgroundColor(Color.parseColor("#000000"))
-                                .limit(10)
-                                .build(PlaceOptions.MODE_CARDS))
-                        .build(MainActivity.this);
-                startActivityForResult(intent, REQUEST_CODE_DIRECTIONS);
-            }
-        });
-*/
-
-/*
-        fabGo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                loadFS();
-                Intent intent = new PlaceAutocomplete.IntentBuilder()
-                                .accessToken(getResources().getString(R.string.mapbox_token))
-                                .placeOptions(PlaceOptions.builder()
-                                .backgroundColor((getResources().getColor(android.R.color.transparent)))
-                                .limit(10)
-                                .build(PlaceOptions.MODE_CARDS))
-                                .build(MainActivity.this);
-                startActivityForResult(intent, REQUEST_CODE_AUTOCOMPLETE);
-            }
-        });
-
-
-*/
-
-
-        // Display the fetched information after clicking on one of the options
-
-
-     /*   // Initialize the AutocompleteSupportFragment.
-        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-
-        // Specify the types of place data to return.
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
-
-        // Set up a PlaceSelectionListener to handle the response.
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(@NonNull Place place) {
-                // TODO: Get info about the selected place.
-                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
-                makeToast("Place: " + place.getName());
-            }
-
-
-            @Override
-            public void onError(@NonNull Status status) {
-                // TODO: Handle the error.
-                Log.i(TAG, "An error occurred: " + status);
-            }
-        });
-*/
-
-
         TxPlaceDetails = findViewById(R.id.tx_place_details);
         TxPlaceDetails.bringToFront();
         fabPlaces = findViewById(R.id.fab_places);
@@ -415,8 +312,43 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                 fsStreetPic();
             }
         });
-        editTextPlace = findViewById(R.id.edtx_search);
+        editTextPlaceStreet = findViewById(R.id.edtx_search_street);
+        editTextPlaceStreet.setTypeface(null, Typeface.BOLD);
+        editTextPlaceStreet.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_SEND) {
+                    aPlaceSearched = true;
+                    searchPlace(editTextPlaceStreet.getText().toString());
+                 //   editTextPlace.setVisibility(View.INVISIBLE);
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+
+        editTextPlaceMap = findViewById(R.id.edtx_search_map);
+        editTextPlaceMap.setTypeface(null, Typeface.BOLD);
+        editTextPlaceMap.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_SEND) {
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            getPlaces(editTextPlaceMap.getText().toString());
+                        }
+                    });
+                    thread.start();
+                }
+                return handled;
+            }
+        });
+
         fabPlaces.bringToFront();
+        editTextPlaceStreet.bringToFront();
         listViewPlaces = new ListView(MainActivity.this);
 
         listViewPlaces.setAdapter(new ArrayAdapter<String>(
@@ -438,8 +370,9 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             @Override
             public void onClick(View v) {
 
+                editTextPlaceStreet.setText("");
                 listViewPlacesDialog();
-                fabPlaceClicked = true;
+                aPlaceSearched = true;
                 if (arrayListPlacesLatLng.isEmpty()) {
                     arrayListPlacesLatLng.add(new LatLng(52.3730796, 4.8924534));
                     arrayListPlacesLatLng.add(new LatLng(41.3828939, 2.1774322));
@@ -498,47 +431,10 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         pd.show();
         getLastKnownLocation();
 
-/*
-        sheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-
-
-            @Override
-            public void onStateChanged(@NonNull View view, int newState) {
-                switch (newState) {
-
-                    case BottomSheetBehavior.STATE_HIDDEN:
-                        break;
-                        case BottomSheetBehavior.STATE_HALF_EXPANDED:  {
-                            fabPlaces.setVisibility(View.INVISIBLE);
-                            listViewPlaces.setVisibility(View.INVISIBLE);
-                            if (firstView && mStreetViewPanorama != null) {
-                                firstView = false;
-                                TxPlaceDetails.setText("a place, nearby... \n" + (String.valueOf(getAddress(mStreetViewPanorama.getLocation().position.latitude, mStreetViewPanorama.getLocation().position.longitude).get(0).getAddressLine(0).toString())));
-                            }
-                        }
-                        break;
-                    case BottomSheetBehavior.STATE_EXPANDED: {
-                        fabPlaces.setVisibility(View.VISIBLE);
-
-                    }
-                    break;
-
-                }
-            }
-
-            @Override
-            public void onSlide(@NonNull View view, float v) {
-
-            }
-        });
-*/
-
-
     }
 
     private void findViewByIds() {
         templateView1 = findViewById(R.id.nativeTemplateView1);
-        templateView2 = findViewById(R.id.nativeTemplateView2);
         hScrollViewPlaces = findViewById(R.id.h_scrollview);
     }
 
@@ -548,15 +444,13 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             loadFS();
             mSupportStreetViewPanoramaFragment.getView().setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             mSupportStreetViewPanoramaFragment.getView().bringToFront();
-            fabPlaces.setVisibility(View.VISIBLE);
         } else {
             templateView1.bringToFront();
-            templateView2.bringToFront();
             RelativeLayout.LayoutParams rlpSP = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight);
-            rlpSP.addRule(RelativeLayout.BELOW, hScrollViewPlaces.getId());
+            rlpSP.addRule(RelativeLayout.ABOVE, templateView1.getId());
             mSupportStreetViewPanoramaFragment.getView().setLayoutParams(rlpSP);
-            fabPlaces.setVisibility(View.INVISIBLE);
         }
+        editTextPlaceStreet.bringToFront();
         TxPlaceDetails.bringToFront();
         imgbtn_street_expand_contract.bringToFront();
         /*templateView1.bringToFront();
@@ -583,34 +477,19 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         if (mSupportMapFragment.getView().getLayoutParams().height != ViewGroup.LayoutParams.MATCH_PARENT) {
             mSupportMapFragment.getView().setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             mSupportMapFragment.getView().bringToFront();
-            RelativeLayout.LayoutParams rlpb = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            rlpb.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-            rlpb.bottomMargin = 100;
-            hScrollViewPlaces.setLayoutParams(rlpb);
+            hScrollViewPlaces.setVisibility(View.VISIBLE);
             loadFS();
         } else {
             MyGmap.clear();
-            BitmapDescriptor icon = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                IconGenerator icnGenerator = new IconGenerator(this);
-                Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddress + "</font></b>"));
-                icon = BitmapDescriptorFactory.fromBitmap(bmp);
-            }
-            markerOptions = new MarkerOptions()
-                    .position(mLatLng).icon(icon);
-
-            //    marker = googleMap.addMarker(markerOptions);
-            markerAddress = MyGmap.addMarker(markerOptions);
+            fabTurnByTurnDirections.setVisibility(View.INVISIBLE);
+            addPresentMarker();
             templateView1.bringToFront();
-            templateView2.bringToFront();
             RelativeLayout.LayoutParams rlpSP = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight);
-            rlpSP.addRule(RelativeLayout.ABOVE, templateView1.getId());
-            RelativeLayout.LayoutParams rlpb = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            rlpb.addRule(RelativeLayout.ABOVE, templateView1.getId());
-            hScrollViewPlaces.setLayoutParams(rlpb);
+            rlpSP.addRule(RelativeLayout.BELOW, templateView1.getId());
             mSupportMapFragment.getView().setLayoutParams(rlpSP);
         }
 
+        fabTurnByTurnDirections.bringToFront();
         hScrollViewPlaces.bringToFront();
         mapSize.bringToFront();
         rgViews.bringToFront();
@@ -658,28 +537,9 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
         }).build();
 
-        adLoader2 = new AdLoader.Builder(this, prodFlag ? "ca-app-pub-6424332507659067/2788119941" : "ca-app-pub-3940256099942544/2247696110").forNativeAd(new NativeAd.OnNativeAdLoadedListener() {
-
-            private ColorDrawable background;
-
-            @Override
-            public void onNativeAdLoaded(NativeAd unifiedNativeAd) {
-
-                NativeTemplateStyle styles = new
-                        NativeTemplateStyle.Builder().withMainBackgroundColor(background).build();
-
-                templateView2.setStyles(styles);
-                templateView2.setNativeAd(unifiedNativeAd);
-                adLoaded2 = true;
-                // Showing a simple Toast message to user when Native an ad is Loaded and ready to show
-                //        Toast.makeText(MainActivity.this, "Native Ad is loaded ,now you can show the native ad  ", Toast.LENGTH_LONG).show();
-            }
-
-        }).build();
 
 
         showNativeAd1();
-        showNativeAd2();
 
     }
 
@@ -699,19 +559,13 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
         }
 
-        if (adLoaded2) {
-            templateView2.setVisibility(View.VISIBLE);
-            // Showing a simple Toast message to user when an Native ad is shown to the user
-            //       Toast.makeText(MainActivity.this, "Native Ad  is loaded and Now showing ad  ", Toast.LENGTH_LONG).show();
-            //     showNativeAd();
 
-        } else {
             //Load the Native ad if it is not loaded
-            loadNativeAd2();
+
             // Showing a simple Toast message to user when Native ad is not loaded
             //     Toast.makeText(MainActivity.this, "Native Ad is not Loaded ", Toast.LENGTH_LONG).show();
 
-        }
+
     }
 
     private void loadNativeAd1() {
@@ -725,32 +579,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         //     Toast.makeText(MainActivity.this, "Native Ad is loading ", Toast.LENGTH_LONG).show();
     }
 
-    private void showNativeAd2() {
-        if (adLoaded1) {
-            templateView1.setVisibility(View.VISIBLE);
-            // Showing a simple Toast message to user when an Native ad is shown to the user
-            //       Toast.makeText(MainActivity.this, "Native Ad  is loaded and Now showing ad  ", Toast.LENGTH_LONG).show();
-            //     showNativeAd();
 
-        } else {
-            //Load the Native ad if it is not loaded
-            loadNativeAd2();
-            // Showing a simple Toast message to user when Native ad is not loaded
-            //     Toast.makeText(MainActivity.this, "Native Ad is not Loaded ", Toast.LENGTH_LONG).show();
-
-        }
-    }
-
-    private void loadNativeAd2() {
-        // Creating  an Ad Request
-        AdRequest adRequest = new AdRequest.Builder().build();
-
-        // load Native Ad with the Request
-        adLoader2.loadAd(adRequest);
-
-        // Showing a simple Toast message to user when Native an ad is Loading
-        //     Toast.makeText(MainActivity.this, "Native Ad is loading ", Toast.LENGTH_LONG).show();
-    }
 
 
   /*  private void showBannerAd() {
@@ -778,24 +607,12 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 // do something...
-                                editTextPlace.setVisibility(View.VISIBLE);
-                                editTextPlace.setText("");
-                                editTextPlace.requestFocus();
-                                editTextPlace.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                                    @Override
-                                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                                        boolean handled = false;
-                                        if (actionId == EditorInfo.IME_ACTION_SEND) {
-                                            searchPlace(editTextPlace.getText().toString());
-                                            editTextPlace.setVisibility(View.INVISIBLE);
-                                            handled = true;
-                                        }
-                                        return handled;
-                                    }
-                                });
+                                editTextPlaceStreet.setVisibility(View.VISIBLE);
+                                editTextPlaceStreet.setText("");
+                                editTextPlaceStreet.requestFocus();
 
                                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.showSoftInput(editTextPlace, InputMethodManager.SHOW_IMPLICIT);
+                                imm.showSoftInput(editTextPlaceStreet, InputMethodManager.SHOW_IMPLICIT);
                                 makeToast("Search a place, you'd like to see!");
                             }
                         }
@@ -811,7 +628,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                     @Override
                     public void onClick(DialogInterface dialog, int position) {
                         makeToast(arrayListPlaces.get(position));
-                        listViewPlaces.setVisibility(View.INVISIBLE);
                         mStreetViewPanorama.setPosition(arrayListPlacesLatLng.get(position));
                         mSupportStreetViewPanoramaFragment.getView().setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                         loadFS();
@@ -834,9 +650,12 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                 Address location = address.get(0);
                 p1 = new LatLng(location.getLatitude(), location.getLongitude());
                 mStreetViewPanorama.setPosition(p1);
-            } else makeToast("no place found, check the spelling maybe!");
+            } else {
+                makeToast("no place found, check the spelling maybe!");
+            }
         } catch (IOException ex) {
 
+            makeToast("Ex - " + ex);
             ex.printStackTrace();
         }
 
@@ -929,57 +748,11 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     }
 
 
-
-  /*  @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_AUTOCOMPLETE) {
-            CarmenFeature feature = PlaceAutocomplete.getPlace(data);
-
-            mStreetViewPanorama.setPosition(getLocationFromAddress(appContext, feature.text()));
-
-
-            streetHandler.postDelayed(new Runnable() {
-                public void run() {
-                    if (mStreetViewPanorama.getLocation() != null)
-                    TxPlaceDetails.setText((String.valueOf(getAddress(mStreetViewPanorama.getLocation().position.latitude, mStreetViewPanorama.getLocation().position.longitude).get(0).getAddressLine(0).toString())));
-                    else TxPlaceDetails.setText("No Pic available nearby");
-                }
-            }, 3000);
-
-        } else  if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_DIRECTIONS) {
-            featureTransit = PlaceAutocomplete.getPlace(data);
-
-            makeToast("yet2impl - Showing Directions from - " + mAddress + " to " + featureTransit.text());
-
-            destLocation =  (getLocationFromAddress(appContext, featureTransit.text()));
-
-            InitRoutes(new LatLng(MyLocation.getLatitude(), MyLocation.getLongitude()), destLocation);
-
-
-        } else  if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_ALERTS) {
-            featureTransit = PlaceAutocomplete.getPlace(data);
-
-            makeToast("yet2impl - Showing Directions from - " + mAddress + " to " + featureTransit.text());
-
-            destLocation =  (getLocationFromAddress(appContext, featureTransit.text()));
-            textViewPlace.setText(featureTransit.text());
-            textViewThisPlace.setVisibility(View.INVISIBLE);
-
-
-        }
-
-
-    }*/
-
-
     private void InitRoutes(final LatLng srcLatLng, final LatLng destLatLng) {
-
 
         {
             markerAddress.remove();
-            BitmapDescriptor icon = null;
+            BitmapDescriptor icon;
             IconGenerator icnGenerator = new IconGenerator(this);
             icnGenerator.setBackground(getDrawable(R.drawable.border));
 
@@ -999,8 +772,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
         LatLngBounds bounds = builder.build();
 
-
-        int padding = (int) (screenWidth * 0.75); // offset from edges of the map 10% of screen
+        int padding =  (screenWidth * 1); // offset from edges of the map 10% of screen
 
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, screenWidth, screenHeight, padding);
 
@@ -1040,23 +812,8 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
                             Snackbar.make(findViewById(R.id.rl_main), "Distance - " + distance + "\n Duration, generally - " + duration, Snackbar.LENGTH_LONG).show();
 
-                            //     dynTextView = new TextView(MainActivity.this);
-
-                            RelativeLayout.LayoutParams dtlp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                            dtlp.addRule(RelativeLayout.BELOW, R.id.rg_views);
-                            //   dynTextView.setLayoutParams(dtlp);
-
 
                             fabTurnByTurnDirections.setVisibility(View.VISIBLE);
-
-
-                            TextView dynTextView = findViewById(R.id.tx_travel_info);
-
-                            dynTextView.setText("Distance - " + distance + "\n Duration, generally - " + duration);
-                            dynTextView.bringToFront();
-                            //     dynTextView.setTextColor(getResources().getColor(android.R.color.black));
-
-                            //     mainLayout.addView(dynTextView);
 
 
                         } else if (status.equals(RequestResult.NOT_FOUND)) {
@@ -1285,7 +1042,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                         streetHandler.postDelayed(new Runnable() {
                             public void run() {
                                 if (mStreetViewPanorama.getLocation() != null)
-                                    if (!fabPlaceClicked)
+                                    if (!aPlaceSearched)
                                         TxPlaceDetails.setText("a Place, nearby...\n\n" + (String.valueOf(getAddress(mStreetViewPanorama.getLocation().position.latitude, mStreetViewPanorama.getLocation().position.longitude).get(0).getAddressLine(0).toString())));
                                     else
                                         TxPlaceDetails.setText("a Place, searched...\n\n" + (String.valueOf(getAddress(mStreetViewPanorama.getLocation().position.latitude, mStreetViewPanorama.getLocation().position.longitude).get(0).getAddressLine(0).toString())));
@@ -1295,7 +1052,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                     }
                 }, streetDelay);
 
-
+                imgbtn_street_expand_contract.bringToFront();
             }
         });
 
@@ -1378,7 +1135,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                     InitRoutes(mLatLng, marker.getPosition());
                 } else {
                     //      addrs.setTextSize(20);
-                    String textMsg = "Sending from Street ... \n " + mDate + "\t - \t" + mTime + "\n I'm @ \n" + addresses.get(0).getAddressLine(0);
+                    String textMsg = "Sending from Street ... \n " + mDate + "\t - \t" + mTime + "\n I'm @ \n" + mAddress;
                     Intent sendIntent = new Intent();
                     sendIntent.setAction(Intent.ACTION_SEND);
                     sendIntent.putExtra(Intent.EXTRA_TEXT, textMsg);
@@ -1435,41 +1192,44 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             if (getAddress(addressLatitude, addressLongitude).get(0) != null) {
                 if (Build.VERSION.SDK_INT >= 35) {
                     mAddress = getAddress(addressLatitude, addressLongitude).get(0).getAddressLine(0);
-                    mAddress = mAddress.substring(0, StringUtils.ordinalIndexOf(mAddress, ",", 3));
+
+                    mAddresses = mAddress.split(",");
+                 //   mAddress = mAddress.substring(0, StringUtils.ordinalIndexOf(mAddress, ",", 3));
                     //  mAddress = String.valueOf(StringUtils.ordinalIndexOf(mAddress, ",", 3));
                 }
 
+                addPresentMarker();
 
-                BitmapDescriptor icon = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                    IconGenerator icnGenerator = new IconGenerator(this);
-                    Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddress + "</font></b>"));
-                    icon = BitmapDescriptorFactory.fromBitmap(bmp);
-                }
-                markerOptions = new MarkerOptions()
-                        .position(mLatLng).icon(icon);
-
-                //    marker = googleMap.addMarker(markerOptions);
-                markerAddress = MyGmap.addMarker(markerOptions);
                 pd.dismiss();
 
-                //      googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mLatLng, 10));
-
-
-                CameraPosition cameraPosition = new CameraPosition.Builder().
-                        target(mLatLng).
-                        tilt(55).
-                        zoom(15).
-                        bearing(0).
-                        build();
-
-                MyGmap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 mapSize.bringToFront();
-                recyclerViewNearbyPlaces.bringToFront();
 
             } else
                 makeToast("Failed to get address for Latitude - " + addressLatitude + " and Longitude - " + addressLongitude);
 
+    }
+
+    private void addPresentMarker() {
+        BitmapDescriptor icon = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            IconGenerator icnGenerator = new IconGenerator(this);
+           // Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddresses[0] + mAddresses[1] + mAddresses[2] + "\n" + mAddresses[3] + mAddresses[4] + "</font></b>"));
+            Bitmap bmp = icnGenerator.makeIcon((mAddresses[0] + "," + mAddresses[1] + "," + mAddresses[2] + "," + "\n\t\t\t\t\t\t\t\t\t" + mAddresses[3] + "," + mAddresses[4]));
+            icon = BitmapDescriptorFactory.fromBitmap(bmp);
+        }
+        markerOptions = new MarkerOptions()
+                .position(mLatLng).icon(icon);
+
+        //    marker = googleMap.addMarker(markerOptions);
+        markerAddress = MyGmap.addMarker(markerOptions);
+        CameraPosition cameraPosition = new CameraPosition.Builder().
+                target(mLatLng).
+                tilt(55).
+                zoom(15).
+                bearing(0).
+                build();
+
+        MyGmap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
 
@@ -1504,6 +1264,9 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
     public void POIclick(View view) {
         makeToast(((TextView) view).getText().toString());
+
+        MyGmap.clear();
+        addPresentMarker();
 
         Thread thread = new Thread(new Runnable() {
 
@@ -1553,14 +1316,9 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
     private void addNearbyPlacesMarkers(ArrayList<Places> nPlaces) {
 
-        CameraPosition cameraPosition = new CameraPosition.Builder().
-                target(mLatLng).
-                tilt(0).
-                zoom(15).
-                bearing(0).
-                build();
+        MyGmap.clear();
 
-        MyGmap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        addPresentMarker();
 
         for (int i = 0; i < nPlaces.size(); i++) {
             LatLng latLng = new LatLng(nPlaces.get(i).geocodes.main.latitude, nPlaces.get(i).geocodes.main.longitude);
@@ -1578,6 +1336,15 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             markerOptionsNearby.title(nPlaces.get(i).name);
             MyGmap.addMarker(markerOptionsNearby);
         }
+
+        CameraPosition cameraPosition = new CameraPosition.Builder().
+                target(mLatLng).
+                tilt(0).
+                zoom(15).
+                bearing(0).
+                build();
+
+        MyGmap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
     }
 

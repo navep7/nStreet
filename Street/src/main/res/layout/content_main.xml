@@ -13,16 +13,25 @@
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
-        android:layout_above="@+id/nativeTemplateView1"
+        android:layout_below="@+id/nativeTemplateView1"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <fragment
+        android:id="@+id/streetviewpanorama"
+        android:layout_above="@+id/nativeTemplateView1"
+        class="com.google.android.gms.maps.SupportStreetViewPanoramaFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 
 
     <RadioGroup
         android:id="@+id/rg_views"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/nativeTemplateView1"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="35dp"
         android:background="@android:drawable/dialog_holo_light_frame"
@@ -58,25 +67,6 @@
 
     </RadioGroup>
 
-    <TextView
-        android:id="@+id/tx_travel_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="25dp" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_directions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="7dp"
-        android:layout_marginTop="7dp"
-        android:src="@android:drawable/ic_menu_directions"
-        android:visibility="invisible"
-        app:backgroundTint="@android:color/white"
-        app:fabSize="mini" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvNearbyPlaces"
         android:layout_width="match_parent"
@@ -88,8 +78,8 @@
         android:id="@+id/fab_turndirections"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/fab_directions"
-        android:layout_alignRight="@+id/fab_directions"
+        android:layout_below="@+id/map_size"
+        android:layout_alignParentEnd="true"
         android:layout_marginTop="@dimen/fab_margin"
         android:src="@drawable/turn_by_turn"
         android:text="Turn-By-Turn"
@@ -125,7 +115,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/rg_views"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentEnd="true"
         android:layout_margin="@dimen/fab_margin"
         android:background="@android:color/transparent"
         android:src="@drawable/expand" />
@@ -133,7 +123,8 @@
 
     <HorizontalScrollView
         android:id="@+id/h_scrollview"
-        android:layout_above="@+id/nativeTemplateView1"
+        android:layout_marginBottom="50dp"
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="horizontal">
@@ -469,51 +460,54 @@
         android:textSize="15sp"
         android:textColor="@android:color/black"
         android:typeface="serif"
-        android:layout_below="@+id/nativeTemplateView1"
+        android:layout_above="@+id/nativeTemplateView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
-
-    <fragment
-        android:id="@+id/streetviewpanorama"
-        android:layout_below="@+id/nativeTemplateView1"
-        android:layout_alignParentBottom="true"
-        class="com.google.android.gms.maps.SupportStreetViewPanoramaFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_places"
-        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:layout_below="@+id/tx_place_details"
+        android:layout_above="@+id/tx_place_details"
         android:layout_alignParentEnd="true"
         android:src="@drawable/airport"/>
 
     <ImageButton
         android:id="@+id/imgbtn_street_expand_contract"
         android:src="@drawable/expand"
-        android:layout_margin="@dimen/fab_margin"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/tx_place_details"
+        android:layout_alignParentStart="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
 
     <EditText
-        android:id="@+id/edtx_search"
+        android:id="@+id/edtx_search_street"
         android:imeOptions="actionSend"
         android:inputType="text"
-        android:visibility="invisible"
+        android:background="@drawable/border"
         android:hint="Search a Place you'd like to see.."
         android:layout_alignBottom="@+id/fab_places"
-        android:layout_toLeftOf="@+id/fab_places"
+        android:layout_toStartOf="@+id/fab_places"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        tools:ignore="HardcodedText" />
+
+    <EditText
+        android:id="@+id/edtx_search_map"
+        android:imeOptions="actionSend"
+        android:inputType="text"
+        android:background="@drawable/border"
+        android:hint="Search a Place you'd like to Go.."
+        android:layout_below="@+id/rg_views"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:ignore="HardcodedText" />
+
 
     <com.google.android.ads.nativetemplates.TemplateView
         android:id= "@+id/nativeTemplateView2"
