@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
     // Naveen Prakash
 
-    private static Context appContext;
+    static Context appContext;
     private SupportMapFragment mSupportMapFragment;
     public static Location MyLocation;
     private static MarkerOptions markerOptions;
@@ -190,7 +190,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     private boolean normalView = true;
     public static MarkerOptions markerOptionsGeoFence;
     public static Marker markerGeoFence;
-    private LatLng l_latlng;
     private GeofencingRequest geofencingRequest;
     private PendingIntent pendingIntentGeoFence;
 
@@ -780,8 +779,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         }
 
 
-
-        String strTransportMode  = "TransportMode.DRIVING";
+        String strTransportMode = "TransportMode.DRIVING";
 
         String serverKey = "AIzaSyB4hJ-5vcOeTOsAiK8CpQ5uPD4D7LPArIE";
         GoogleDirection.withServerKey(serverKey)
@@ -940,7 +938,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                 processLocation(location);
                 locationUpdates();
 
-                     Toast.makeText(getApplicationContext(), location.getLatitude() + " : " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), location.getLatitude() + " : " + location.getLongitude(), Toast.LENGTH_SHORT).show();
             }
         };
         MyLocation myLocation = new MyLocation();
@@ -948,10 +946,10 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     }
 
 
-    public void showReminderAlertDialog() {
+    public void showReminderAlertDialog(LatLng latLng) {
 
 
-        AddReminderDialog addReminderDialog = new AddReminderDialog(MainActivity.this, l_latlng);
+        AddReminderDialog addReminderDialog = new AddReminderDialog(MainActivity.this, latLng);
         addReminderDialog.getWindow().setGravity(Gravity.CENTER);
         addReminderDialog.show();
 
@@ -994,6 +992,13 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                     @SuppressLint("SuspiciousIndentation")
                     @Override
                     public void onClick(View v) {
+                        MyGmap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                            @Override
+                            public void onMapLongClick(@NonNull LatLng latLng) {
+                                makeToast("onMapLongClick");
+                                showReminderAlertDialog(latLng);
+                            }
+                        });
                         fsMap();
                     }
                 });
@@ -1092,7 +1097,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     private void locationUpdates() {
 
 
-
         makeToast("Rqstg L Updates!");
         //Instantiating the Location request and setting the priority and the interval I need to update the location.
         locationRequest = LocationRequest.create();
@@ -1189,24 +1193,25 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             @SuppressLint("PotentialBehaviorOverride")
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
-                if (marker.getTitle() != null) {
-                    makeToast(marker.getTitle());
-                    if (polyLineRoute != null)
-                        polyLineRoute.remove();
-                    InitRoutes(mLatLng, marker.getPosition());
-                } else {
-                    //      addrs.setTextSize(20);
-                    String textMsg = "Sending from Street ... \n " + mDate + "\t - \t" + mTime + "\n I'm @ \n" + mAddress;
-                    Intent sendIntent = new Intent();
-                    sendIntent.setAction(Intent.ACTION_SEND);
-                    sendIntent.putExtra(Intent.EXTRA_TEXT, textMsg);
-                    sendIntent.setType("text/plain");
+                if (marker.getTitle() != null)
+                    if (!marker.getTitle().startsWith("R")) {
+                        makeToast(marker.getTitle());
+                        if (polyLineRoute != null)
+                            polyLineRoute.remove();
+                        InitRoutes(mLatLng, marker.getPosition());
+                    } else {
+                        //      addrs.setTextSize(20);
+                        String textMsg = "Sending from Street ... \n " + mDate + "\t - \t" + mTime + "\n I'm @ \n" + mAddress;
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, textMsg);
+                        sendIntent.setType("text/plain");
 
-                    if (sendIntent.resolveActivity(getPackageManager()) != null) {
-                        startActivity(sendIntent);
+                        if (sendIntent.resolveActivity(getPackageManager()) != null) {
+                            startActivity(sendIntent);
+                        }
+
                     }
-
-                }
                 return true;
             }
         });

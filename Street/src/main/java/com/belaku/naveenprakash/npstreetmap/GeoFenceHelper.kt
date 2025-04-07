@@ -55,6 +55,6 @@ class GeoFenceHelper(base: Context?) : ContextWrapper(base) {
                     .GEOFENCE_TOO_MANY_PENDING_INTENTS -> return "GEOFENCE_TOO_MANY_PENDING_INTENTS"
             }
         }
-        return e.localizedMessage
+        return e.toString()
     }
 }
