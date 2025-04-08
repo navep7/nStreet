@@ -213,6 +213,8 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
+    private LatLng streetViewPos;
+    private boolean streetPicSet = false;
 
 
     @Override
@@ -252,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         rdbManager = new RDBManager(this);
         rdbManager.open();
         Cursor cursor = rdbManager.fetch();
-        makeToast("Reminders - " + cursor.getCount());
+    //    makeToast("Reminders - " + cursor.getCount());
 
         if (cursor.getCount() > 0)
             btnRemoveFences.setVisibility(View.VISIBLE);
@@ -938,7 +940,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                 processLocation(location);
                 locationUpdates();
 
-                Toast.makeText(getApplicationContext(), location.getLatitude() + " : " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+           //     Toast.makeText(getApplicationContext(), location.getLatitude() + " : " + location.getLongitude(), Toast.LENGTH_SHORT).show();
             }
         };
         MyLocation myLocation = new MyLocation();
@@ -969,121 +971,121 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
         mSupportMapFragment.getMapAsync(MainActivity.this);
 
-        mSupportStreetViewPanoramaFragment.getStreetViewPanoramaAsync(new OnStreetViewPanoramaReadyCallback() {
+
+        if (!streetPicSet || (Math.round(streetViewPos.latitude * 100) / 100.0 != Math.round(addressLatitude * 100) / 100.0)) {
+            makeToast("settingStreetPic");
+            mSupportStreetViewPanoramaFragment.getStreetViewPanoramaAsync(new OnStreetViewPanoramaReadyCallback() {
+
+                @Override
+                public void onStreetViewPanoramaReady(final StreetViewPanorama streetViewPanorama) {
+
+                    mStreetViewPanorama = streetViewPanorama;
+                    enableStreetFeatures(mStreetViewPanorama);
+
+                    streetViewPos = new LatLng(addressLatitude, addressLongitude);
+                    streetViewPanorama.setPosition(streetViewPos, 50000);
+                    rgViews = (RadioGroup) findViewById(R.id.rg_views);
 
 
-            @Override
-            public void onStreetViewPanoramaReady(final StreetViewPanorama streetViewPanorama) {
-
-
-                mStreetViewPanorama = streetViewPanorama;
-                enableStreetFeatures(mStreetViewPanorama);
-
-
-                streetViewPanorama.setPosition(new LatLng(addressLatitude, addressLongitude), 50000);
-
-                //    streetViewPanorama.setPosition(new LatLng(40.758896, -73.985130), 50000);
-
-
-                rgViews = (RadioGroup) findViewById(R.id.rg_views);
-
-
-                mapSize.setOnClickListener(new View.OnClickListener() {
-                    @SuppressLint("SuspiciousIndentation")
-                    @Override
-                    public void onClick(View v) {
-                        MyGmap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-                            @Override
-                            public void onMapLongClick(@NonNull LatLng latLng) {
-                                makeToast("onMapLongClick");
-                                showReminderAlertDialog(latLng);
-                            }
-                        });
-                        fsMap();
-                    }
-                });
-
-                rgViews.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-
-                    @Override
-                    public void onCheckedChanged(RadioGroup group, int checkedId) {
-
-                        if (checkedId == R.id.rb_dark) {  //dark
-                            MyGmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                            MyGmap.setMapStyle(
-                                    MapStyleOptions.loadRawResourceStyle(
-                                            getApplicationContext(), R.raw.dark_style));
-                        } else if (checkedId == R.id.rb_retro) {  //retro
-                            MyGmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                            MyGmap.setMapStyle(
-                                    MapStyleOptions.loadRawResourceStyle(
-                                            getApplicationContext(), R.raw.norm_style));
-                        } else if (checkedId == R.id.rb_sat) {  //retro
-                            MyGmap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                            MyGmap.setMapStyle(
-                                    MapStyleOptions.loadRawResourceStyle(
-                                            getApplicationContext(), R.raw.gray_style));
-                        }
-                    }
-                });
-
-
-                streetHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        //do something
-                        mStreetViewPanoramaCamera =
-                                new StreetViewPanoramaCamera.Builder()
-                                        .zoom(mStreetViewPanorama.getPanoramaCamera().zoom)
-                                        .tilt(mStreetViewPanorama.getPanoramaCamera().tilt)
-                                        .bearing(mStreetViewPanorama.getPanoramaCamera().bearing - 60)
-                                        .build();
-                        mStreetViewPanorama.animateTo(mStreetViewPanoramaCamera, 1000);
-                        streetHandler.postDelayed(this, streetDelay);
-
-                        final Handler handler = new Handler();
-                        final int delay = 1000; // 1000 milliseconds == 1 second
-
-
-                        handler.postDelayed(new Runnable() {
-                            public void run() {
-                                if (mStreetViewPanorama.getLocation() != null) {
-                                    if (!aPlaceSearched) {
-                                        TxPlaceDetails.setText("a Place, nearby...\n\n" + (String.valueOf(getAddress(mStreetViewPanorama.getLocation().position.latitude, mStreetViewPanorama.getLocation().position.longitude).get(0).getAddressLine(0).toString())));
-                                        pd.dismiss();
-                                    } else
-                                        TxPlaceDetails.setText("a Place, searched...\n\n" + (String.valueOf(getAddress(mStreetViewPanorama.getLocation().position.latitude, mStreetViewPanorama.getLocation().position.longitude).get(0).getAddressLine(0).toString())));
-                                } else {
-                                    delayCount++;
-                                    if (delayCount == 1)
-                                        pd.setMessage("fetching Location.");
-                                    else if (delayCount == 2)
-                                        pd.setMessage("fetching Location..");
-                                    else if (delayCount == 3)
-                                        pd.setMessage("fetching Location...");
-                                    else if (delayCount == 4)
-                                        pd.setMessage("fetching Location....");
-                                    else if (delayCount == 5)
-                                        pd.setMessage("fetching Location.....");
-                                    else if (delayCount == 6)
-                                        pd.setMessage("fetching Location......");
-                                    else if (delayCount == 7)
-                                        pd.setMessage("fetching Location.......");
-                                    else if (delayCount == 8)
-                                        pd.setMessage("fetching Location........");
-                                    else if (delayCount == 9) {
-                                        pd.setMessage("Poor Connectivity, please wait for some more time OR try again, later");
-                                        TxPlaceDetails.setText("No Pic found for this Place!");
-                                    }
-                                    handler.postDelayed(this, delay);
+                    mapSize.setOnClickListener(new View.OnClickListener() {
+                        @SuppressLint("SuspiciousIndentation")
+                        @Override
+                        public void onClick(View v) {
+                            MyGmap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                                @Override
+                                public void onMapLongClick(@NonNull LatLng latLng) {
+                                    showReminderAlertDialog(latLng);
                                 }
-                            }
-                        }, delay);
-                    }
-                }, streetDelay);
+                            });
+                            fsMap();
+                        }
+                    });
 
-                imgbtn_street_expand_contract.bringToFront();
-            }
-        });
+                    rgViews.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+                        @Override
+                        public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+                            if (checkedId == R.id.rb_dark) {  //dark
+                                MyGmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                                MyGmap.setMapStyle(
+                                        MapStyleOptions.loadRawResourceStyle(
+                                                getApplicationContext(), R.raw.dark_style));
+                            } else if (checkedId == R.id.rb_retro) {  //retro
+                                MyGmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                                MyGmap.setMapStyle(
+                                        MapStyleOptions.loadRawResourceStyle(
+                                                getApplicationContext(), R.raw.norm_style));
+                            } else if (checkedId == R.id.rb_sat) {  //retro
+                                MyGmap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                                MyGmap.setMapStyle(
+                                        MapStyleOptions.loadRawResourceStyle(
+                                                getApplicationContext(), R.raw.gray_style));
+                            }
+                        }
+                    });
+
+
+                    streetHandler.postDelayed(new Runnable() {
+                        public void run() {
+                            //do something
+                            mStreetViewPanoramaCamera =
+                                    new StreetViewPanoramaCamera.Builder()
+                                            .zoom(mStreetViewPanorama.getPanoramaCamera().zoom)
+                                            .tilt(mStreetViewPanorama.getPanoramaCamera().tilt)
+                                            .bearing(mStreetViewPanorama.getPanoramaCamera().bearing - 60)
+                                            .build();
+                            mStreetViewPanorama.animateTo(mStreetViewPanoramaCamera, 1000);
+                            streetHandler.postDelayed(this, streetDelay);
+
+                            final Handler handler = new Handler();
+                            final int delay = 1000; // 1000 milliseconds == 1 second
+
+
+                            handler.postDelayed(new Runnable() {
+                                public void run() {
+                                    if (mStreetViewPanorama.getLocation() != null) {
+                                        streetPicSet = true;
+                                        handler.removeCallbacks(this);
+                                        if (!aPlaceSearched) {
+                                            TxPlaceDetails.setText("a Place, nearby...\n\n" + (String.valueOf(getAddress(mStreetViewPanorama.getLocation().position.latitude, mStreetViewPanorama.getLocation().position.longitude).get(0).getAddressLine(0).toString())));
+                                            pd.dismiss();
+                                        } else
+                                            TxPlaceDetails.setText("a Place, searched...\n\n" + (String.valueOf(getAddress(mStreetViewPanorama.getLocation().position.latitude, mStreetViewPanorama.getLocation().position.longitude).get(0).getAddressLine(0).toString())));
+                                    } else {
+                                        delayCount++;
+                                        if (delayCount == 1)
+                                            pd.setMessage("fetching Location.");
+                                        else if (delayCount == 2)
+                                            pd.setMessage("fetching Location..");
+                                        else if (delayCount == 3)
+                                            pd.setMessage("fetching Location...");
+                                        else if (delayCount == 4)
+                                            pd.setMessage("fetching Location....");
+                                        else if (delayCount == 5)
+                                            pd.setMessage("fetching Location.....");
+                                        else if (delayCount == 6)
+                                            pd.setMessage("fetching Location......");
+                                        else if (delayCount == 7)
+                                            pd.setMessage("fetching Location.......");
+                                        else if (delayCount == 8)
+                                            pd.setMessage("fetching Location........");
+                                        else if (delayCount == 9) {
+                                            streetPicSet = false;
+                                            pd.setMessage("Poor Connectivity, please wait for some more time OR try again, later");
+                                            TxPlaceDetails.setText("No Pic found for this Place!");
+                                        }
+                                        handler.postDelayed(this, delay);
+                                    }
+                                }
+                            }, delay);
+                        }
+                    }, streetDelay);
+
+                    imgbtn_street_expand_contract.bringToFront();
+                }
+            });
+        }
 
 
         //    makeToast("Latitude - " + location.getLatitude() + "\n Longitude - " + location.getLongitude());
@@ -1097,7 +1099,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     private void locationUpdates() {
 
 
-        makeToast("Rqstg L Updates!");
+   //     makeToast("Rqstg L Updates!");
         //Instantiating the Location request and setting the priority and the interval I need to update the location.
         locationRequest = LocationRequest.create();
         locationRequest.setInterval(60000);
@@ -1114,10 +1116,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                     makeToast(MessageFormat.format("Lat: {0} Long: {1} Accuracy: {2}", location.getLatitude(),
                             location.getLongitude(), location.getAccuracy()));
                     processLocation(location);
-                    //Showing the latitude, longitude and accuracy on the home screen.
-                  /*  for (Location location : locationResult.getLocations()) {
-
-                    }*/
                 }
             }
         };

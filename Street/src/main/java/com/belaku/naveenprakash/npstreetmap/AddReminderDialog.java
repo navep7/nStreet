@@ -84,7 +84,7 @@ public class AddReminderDialog extends Dialog {
                 MainActivity.reminders.add(reminder);
                 MainActivity.rdbManager.insert(reminder.getStringTask().toString(), String.valueOf(MainActivity.markerGeoFence.getPosition().latitude), String.valueOf(MainActivity.markerGeoFence.getPosition().longitude));
                 dismiss();
-                makeToast("GeoFence Reminder - " + d_editText_content.getText() + " added!");
+             //   makeToast("GeoFence Reminder - " + d_editText_content.getText() + " added!");
 
                 addGeofence(ll, 1000);
 
