@@ -436,8 +436,10 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
         getTimeandDate();
 
+
         Log.d("Severe", "calling getLastKnownLocation");
         pd = new ProgressDialog(MainActivity.this);
+   //     pd = findViewById(R.id.pd_street);
         pd.setMessage("fetching Location");
         pd.show();
         getLastKnownLocation();
@@ -960,6 +962,10 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
     private void processLocation(Location location) {
 
+        if (MyLocation != null)
+            if (MyLocation != location)
+                makeToast("New Location Update - " + location.toString());
+            else makeToast("Still!");
         // Logic to handle location object
         MyLocation = location;
 
@@ -973,7 +979,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
 
         if (!streetPicSet || (Math.round(streetViewPos.latitude * 100) / 100.0 != Math.round(addressLatitude * 100) / 100.0)) {
-            makeToast("settingStreetPic");
+
             mSupportStreetViewPanoramaFragment.getStreetViewPanoramaAsync(new OnStreetViewPanoramaReadyCallback() {
 
                 @Override
@@ -1098,9 +1104,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     @SuppressLint("MissingPermission")
     private void locationUpdates() {
 
-
-   //     makeToast("Rqstg L Updates!");
-        //Instantiating the Location request and setting the priority and the interval I need to update the location.
         locationRequest = LocationRequest.create();
         locationRequest.setInterval(60000);
         locationRequest.setSmallestDisplacement(5);
@@ -1113,8 +1116,6 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             public void onLocationResult(LocationResult locationResult) {
                 if (locationResult != null) {
                     Location location = locationResult.getLastLocation();
-                    makeToast(MessageFormat.format("Lat: {0} Long: {1} Accuracy: {2}", location.getLatitude(),
-                            location.getLongitude(), location.getAccuracy()));
                     processLocation(location);
                 }
             }
