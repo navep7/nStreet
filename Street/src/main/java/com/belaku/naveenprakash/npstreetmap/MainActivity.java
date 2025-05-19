@@ -180,11 +180,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     private ProgressDialog pd;
     private AdView bannerAdView;
 
-    private List<String> arrayListPlaces = Arrays.asList("Amsterdam, North Holland, Netherlands", "Barcelona, Catalonia, Spain", "Cairo, Egypt", "Dallas, Texas, USA", "Edinburgh, Scotland",
-            "Florence, Italy", "Ghent, Gent, Belgium", "Havana, La Habana Vieja, Cuba", "Indianapolis, Indiana, USA", "Jacksonville, Florida, USA",
-            "Kansas City, Missouri, USA", "Las Vegas, Nevada, USA", "Mysuru, Karnataka, India", "New Delhi, India", "Otty, Tamil Nadu, India",
-            "Paris, France", "Quincy, Massachusetts, USA", "Rome, Roma Capitale, Italy", "Sydney, New South Wales, Australia", "Tokyo, Japan",
-            "Uraguay Drive, Pasadena, TX 77504, USA", "Vancouver, BC, Canada", "Washington, District of Columbia, USA", "Xi'an, Shaanxi, China", "Yadiyūr, Tumkūr, India", "Zaragoza, Aragon, Spain");
+    private List<String> arrayListPlaces = Arrays.asList("Amsterdam, North Holland, Netherlands", "Barcelona, Catalonia, Spain", "Cairo, Egypt", "Dallas, Texas, USA", "Edinburgh, Scotland", "Florence, Italy", "Ghent, Gent, Belgium", "Havana, La Habana Vieja, Cuba", "Indianapolis, Indiana, USA", "Jacksonville, Florida, USA", "Kansas City, Missouri, USA", "Las Vegas, Nevada, USA", "Mysuru, Karnataka, India", "New Delhi, India", "Otty, Tamil Nadu, India", "Paris, France", "Quincy, Massachusetts, USA", "Rome, Roma Capitale, Italy", "Sydney, New South Wales, Australia", "Tokyo, Japan", "Uraguay Drive, Pasadena, TX 77504, USA", "Vancouver, BC, Canada", "Washington, District of Columbia, USA", "Xi'an, Shaanxi, China", "Yadiyūr, Tumkūr, India", "Zaragoza, Aragon, Spain");
     private List<LatLng> arrayListPlacesLatLng = new ArrayList<>();
     private ImageButton mapSize;
     private boolean normalView = true;
@@ -226,76 +222,27 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         appContext = getApplicationContext();
 
         findViewByIds();
-
-        screenWidth = getResources().getDisplayMetrics().widthPixels;
-        screenHeight = getResources().getDisplayMetrics().heightPixels;
-
-
-        RelativeLayout.LayoutParams rlpHS = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        rlpHS.addRule(RelativeLayout.CENTER_VERTICAL);
-        templateView1.setLayoutParams(rlpHS);
+        initStuff();
+        listeners();
 
 
-        mSupportMapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-
-        mSupportStreetViewPanoramaFragment = (SupportStreetViewPanoramaFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.streetviewpanorama);
-
-
-        MobileAds.initialize(this);
-
-
-        nativeAd();
-
-        mainLayout = findViewById(R.id.main_layout);
-
-        btnRemoveFences = findViewById(R.id.btn_remove_fences);
         rdbManager = new RDBManager(this);
         rdbManager.open();
         Cursor cursor = rdbManager.fetch();
-    //    makeToast("Reminders - " + cursor.getCount());
+        //    makeToast("Reminders - " + cursor.getCount());
 
-        if (cursor.getCount() > 0)
-            btnRemoveFences.setVisibility(View.VISIBLE);
+        if (cursor.getCount() > 0) btnRemoveFences.setVisibility(View.VISIBLE);
         else btnRemoveFences.setVisibility(View.INVISIBLE);
 
-        btnRemoveFences.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MyGmap.clear();
-                rdbManager.delete();
-            }
-        });
-        //ADs
+
         for (int i = 0; i < cursor.getCount(); i++) {
-            if (i == 0)
-                cursor.moveToFirst();
+            if (i == 0) cursor.moveToFirst();
             else cursor.moveToNext();
             Reminder reminder = new Reminder();
             reminder.setStringTask(cursor.getString(1));
             reminder.setLatLng(new LatLng(Double.valueOf(cursor.getString(2)), Double.valueOf(cursor.getString(3))));
             reminders.add(reminder);
         }
-
-        //  adView.setLayoutParams(rlp);
-        //   findViewById(R.id.main_layout)
-        mapSize = findViewById(R.id.map_size);
-
-
-        fabTurnByTurnDirections = findViewById(R.id.fab_turndirections);
-
-        fabTurnByTurnDirections.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Intent intent = new Intent(Intent.ACTION_VIEW,
-                        Uri.parse("google.navigation:q=" + destLocation.latitude + "," + destLocation.longitude + "&mode=1"));
-                intent.setPackage("com.google.android.apps.maps");
-
-                startActivity(intent);
-            }
-        });
 
 
         ArrayList<String> cList = new ArrayList<String>();
@@ -311,19 +258,9 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
         }
 
-
-        TxPlaceDetails = findViewById(R.id.tx_place_details);
         TxPlaceDetails.bringToFront();
-        fabPlaces = findViewById(R.id.fab_places);
-        imgbtn_street_expand_contract = findViewById(R.id.imgbtn_street_expand_contract);
 
-        imgbtn_street_expand_contract.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                fsStreetPic();
-            }
-        });
-        editTextPlaceStreet = findViewById(R.id.edtx_search_street);
+
         editTextPlaceStreet.setTypeface(null, Typeface.BOLD);
         editTextPlaceStreet.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -339,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             }
         });
 
-        editTextPlaceMap = findViewById(R.id.edtx_search_map);
+
         editTextPlaceMap.setTypeface(null, Typeface.BOLD);
         editTextPlaceMap.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -362,10 +299,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         editTextPlaceStreet.bringToFront();
         listViewPlaces = new ListView(MainActivity.this);
 
-        listViewPlaces.setAdapter(new ArrayAdapter<String>(
-                MainActivity.this,
-                android.R.layout.simple_list_item_1,
-                arrayListPlaces));
+        listViewPlaces.setAdapter(new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, arrayListPlaces));
         listViewPlaces.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -376,6 +310,70 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             }
         });
 
+
+        TxPlaceDetails.setBackground(getResources().getDrawable(R.drawable.tx_bg));
+
+        mRotateAnimation = new RotateAnimation(ROTATE_FROM, ROTATE_TO, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);//0, 0, 40, 0);
+        mRotateAnimation.setDuration((long) 5 * 5000);
+        mRotateAnimation.setRepeatCount(0);
+
+        fabRotatelayoutParams = new FrameLayout.LayoutParams(200, 200);
+        fabRotatelayoutParams.gravity = Gravity.CENTER_VERTICAL;
+
+
+        getTimeandDate();
+
+
+        Log.d("Severe", "calling getLastKnownLocation");
+        pd = new ProgressDialog(MainActivity.this);
+        //     pd = findViewById(R.id.pd_street);
+        pd.setMessage("fetching Location");
+        pd.show();
+      //  getLastKnownLocation();
+        locationUpdates();
+
+    }
+
+    private void listeners() {
+        btnRemoveFences.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyGmap.clear();
+                rdbManager.delete();
+            }
+        });
+
+        fabTurnByTurnDirections.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=" + destLocation.latitude + "," + destLocation.longitude + "&mode=1"));
+                intent.setPackage("com.google.android.apps.maps");
+
+                startActivity(intent);
+            }
+        });
+
+        imgbtn_street_expand_contract.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fsStreetPic();
+            }
+        });
+
+        mapSize.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SuspiciousIndentation")
+            @Override
+            public void onClick(View v) {
+                MyGmap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                    @Override
+                    public void onMapLongClick(@NonNull LatLng latLng) {
+                        showReminderAlertDialog(latLng);
+                    }
+                });
+                fsMap();
+            }
+        });
 
         fabPlaces.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -424,31 +422,39 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             }
         });
 
-        TxPlaceDetails.setBackground(getResources().getDrawable(R.drawable.tx_bg));
 
-        mRotateAnimation = new RotateAnimation(ROTATE_FROM, ROTATE_TO, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);//0, 0, 40, 0);
-        mRotateAnimation.setDuration((long) 5 * 5000);
-        mRotateAnimation.setRepeatCount(0);
+    }
 
-        fabRotatelayoutParams = new FrameLayout.LayoutParams(200, 200);
-        fabRotatelayoutParams.gravity = Gravity.CENTER_VERTICAL;
+    private void initStuff() {
+        screenWidth = getResources().getDisplayMetrics().widthPixels;
+        screenHeight = getResources().getDisplayMetrics().heightPixels;
 
+        RelativeLayout.LayoutParams rlpHS = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
+        rlpHS.addRule(RelativeLayout.CENTER_VERTICAL);
+        templateView1.setLayoutParams(rlpHS);
 
-        getTimeandDate();
-
-
-        Log.d("Severe", "calling getLastKnownLocation");
-        pd = new ProgressDialog(MainActivity.this);
-   //     pd = findViewById(R.id.pd_street);
-        pd.setMessage("fetching Location");
-        pd.show();
-        getLastKnownLocation();
+        MobileAds.initialize(this);
+        nativeAd();
 
     }
 
     private void findViewByIds() {
         templateView1 = findViewById(R.id.nativeTemplateView1);
         hScrollViewPlaces = findViewById(R.id.h_scrollview);
+        mapSize = findViewById(R.id.map_size);
+        mainLayout = findViewById(R.id.main_layout);
+        btnRemoveFences = findViewById(R.id.btn_remove_fences);
+        fabTurnByTurnDirections = findViewById(R.id.fab_turndirections);
+        rgViews = findViewById(R.id.rg_views);
+
+        mSupportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mSupportStreetViewPanoramaFragment = (SupportStreetViewPanoramaFragment) getSupportFragmentManager().findFragmentById(R.id.streetviewpanorama);
+
+        TxPlaceDetails = findViewById(R.id.tx_place_details);
+        fabPlaces = findViewById(R.id.fab_places);
+        imgbtn_street_expand_contract = findViewById(R.id.imgbtn_street_expand_contract);
+        editTextPlaceStreet = findViewById(R.id.edtx_search_street);
+        editTextPlaceMap = findViewById(R.id.edtx_search_map);
     }
 
     private void fsStreetPic() {
@@ -531,8 +537,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         arrayListNearArrayDrawables.add(R.drawable.restaurant);
         arrayListNearArrayDrawables.add(R.drawable.school);
         arrayListNearArrayDrawables.add(R.drawable.trainstation);
-        arrayListNearArray = new ArrayList<String>(
-                Arrays.asList("Edu", "Health", "Movie", "Train", "Plane", "Food", "Drink", "Malls", "Temple", "ATM"));
+        arrayListNearArray = new ArrayList<String>(Arrays.asList("Edu", "Health", "Movie", "Train", "Plane", "Food", "Drink", "Malls", "Temple", "ATM"));
         return new RvAdapter(this, arrayListNearArray, arrayListNearArrayDrawables, this);
     }
 
@@ -547,14 +552,13 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             @Override
             public void onNativeAdLoaded(NativeAd unifiedNativeAd) {
 
-                NativeTemplateStyle styles = new
-                        NativeTemplateStyle.Builder().withMainBackgroundColor(background).build();
+                NativeTemplateStyle styles = new NativeTemplateStyle.Builder().withMainBackgroundColor(background).build();
 
                 templateView1.setStyles(styles);
                 templateView1.setNativeAd(unifiedNativeAd);
                 adLoaded1 = true;
                 // Showing a simple Toast message to user when Native an ad is Loaded and ready to show
-                //        Toast.makeText(MainActivity.this, "Native Ad is loaded ,now you can show the native ad  ", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Native Ad is loaded ,now you can show the native ad  ", Toast.LENGTH_LONG).show();
             }
 
         }).build();
@@ -566,7 +570,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
 
     private void showNativeAd1() {
-        if (adLoaded1) {
+        if (prodFlag) if (adLoaded1) {
             templateView1.setVisibility(View.VISIBLE);
             // Showing a simple Toast message to user when an Native ad is shown to the user
             //       Toast.makeText(MainActivity.this, "Native Ad  is loaded and Now showing ad  ", Toast.LENGTH_LONG).show();
@@ -616,45 +620,32 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
     private void listViewPlacesDialog() {
 
-        final ArrayAdapter<String> arrayAdapter = (new ArrayAdapter<String>(
-                MainActivity.this,
-                android.R.layout.simple_list_item_1,
-                arrayListPlaces));
+        final ArrayAdapter<String> arrayAdapter = (new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, arrayListPlaces));
 
-        new AlertDialog.Builder(MainActivity.this)
-                .setTitle("Select a Place to View - ")
-                .setIcon(R.drawable.street_icon)
-                .setPositiveButton("Search",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                // do something...
-                                editTextPlaceStreet.setVisibility(View.VISIBLE);
-                                editTextPlaceStreet.setText("");
-                                editTextPlaceStreet.requestFocus();
+        new AlertDialog.Builder(MainActivity.this).setTitle("Select a Place to View - ").setIcon(R.drawable.street_icon).setPositiveButton("Search", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // do something...
+                editTextPlaceStreet.setVisibility(View.VISIBLE);
+                editTextPlaceStreet.setText("");
+                editTextPlaceStreet.requestFocus();
 
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.showSoftInput(editTextPlaceStreet, InputMethodManager.SHOW_IMPLICIT);
-                                makeToast("Search a place, you'd like to see!");
-                            }
-                        }
-                )
-                .setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(editTextPlaceStreet, InputMethodManager.SHOW_IMPLICIT);
+                makeToast("Search a place, you'd like to see!");
+            }
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
 
-                            }
-                        }
-                )
-                .setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int position) {
-                        makeToast(arrayListPlaces.get(position));
-                        mStreetViewPanorama.setPosition(arrayListPlacesLatLng.get(position));
-                        mSupportStreetViewPanoramaFragment.getView().setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                        loadFS();
-                    }
-                })
-                .create().show();
+            }
+        }).setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int position) {
+                makeToast(arrayListPlaces.get(position));
+                mStreetViewPanorama.setPosition(arrayListPlacesLatLng.get(position));
+                mSupportStreetViewPanoramaFragment.getView().setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                loadFS();
+            }
+        }).create().show();
     }
 
     private void searchPlace(String string) {
@@ -686,29 +677,28 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     private void loadFS() {
 
         adRequest = new AdRequest.Builder().build();
-        InterstitialAd.load(this, prodFlag ? getString(R.string.actual_intr_ad_id) : "ca-app-pub-3940256099942544/1033173712", adRequest,
-                new InterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                        // The mInterstitialAd reference will be null until
-                        // an ad is loaded.
-                        makeToast("AdLoaded");
-                        mInterstitialAd = interstitialAd;
-                        showFS();
-                    }
+        InterstitialAd.load(this, prodFlag ? getString(R.string.actual_intr_ad_id) : "ca-app-pub-3940256099942544/1033173712", adRequest, new InterstitialAdLoadCallback() {
+            @Override
+            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                // The mInterstitialAd reference will be null until
+                // an ad is loaded.
+           //     makeToast("AdLoaded");
+                mInterstitialAd = interstitialAd;
+                showFS();
+            }
 
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        // Handle the error
-                        mInterstitialAd = null;
-                        makeToast("FtL - " + loadAdError.getMessage());
-                    }
-                });
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                // Handle the error
+                mInterstitialAd = null;
+                makeToast("FtL - " + loadAdError.getMessage());
+            }
+        });
     }
 
 
     private void showFS() {
-        if (mInterstitialAd != null) {
+        if (prodFlag) if (mInterstitialAd != null) {
             mInterstitialAd.show(this);
         }
     }
@@ -717,55 +707,54 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     public void loadFSR() {
         adRequest = new AdRequest.Builder().build();
 
-        RewardedInterstitialAd.load(MainActivity.this, "ca-app-pub-6424332507659067/5482828095",
-                adRequest, new RewardedInterstitialAdLoadCallback() {
+        RewardedInterstitialAd.load(MainActivity.this, "ca-app-pub-6424332507659067/5482828095", adRequest, new RewardedInterstitialAdLoadCallback() {
+            @Override
+            public void onAdLoaded(RewardedInterstitialAd ad) {
+                rewardedInterstitialAd = ad;
+                rewardedInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                     @Override
-                    public void onAdLoaded(RewardedInterstitialAd ad) {
-                        rewardedInterstitialAd = ad;
-                        rewardedInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
-                            @Override
-                            public void onAdClicked() {
-                                // Called when a click is recorded for an ad.
-                                makeToast("Ad was clicked.");
-                                rewardedInterstitialAd.show(/* Activity */ MainActivity.this,/*
+                    public void onAdClicked() {
+                        // Called when a click is recorded for an ad.
+                        makeToast("Ad was clicked.");
+                        rewardedInterstitialAd.show(/* Activity */ MainActivity.this,/*
     OnUserEarnedRewardListener */ MainActivity.this);
-                            }
-
-                            @Override
-                            public void onAdDismissedFullScreenContent() {
-                                // Called when ad is dismissed.
-                                // Set the ad reference to null so you don't show the ad a second time.
-                                Log.d(TAG, "Ad dismissed fullscreen content.");
-                                rewardedInterstitialAd = null;
-                            }
-
-                            @Override
-                            public void onAdFailedToShowFullScreenContent(AdError adError) {
-                                // Called when ad fails to show.
-                                Log.e(TAG, "Ad failed to show fullscreen content.");
-                                rewardedInterstitialAd = null;
-                            }
-
-                            @Override
-                            public void onAdImpression() {
-                                // Called when an impression is recorded for an ad.
-                                Log.d(TAG, "Ad recorded an impression.");
-                            }
-
-                            @Override
-                            public void onAdShowedFullScreenContent() {
-                                // Called when ad is shown.
-                                Log.d(TAG, "Ad showed fullscreen content.");
-                            }
-                        });
                     }
 
                     @Override
-                    public void onAdFailedToLoad(LoadAdError loadAdError) {
-                        makeToast("onAdFailedToLoad - " + loadAdError);
+                    public void onAdDismissedFullScreenContent() {
+                        // Called when ad is dismissed.
+                        // Set the ad reference to null so you don't show the ad a second time.
+                        Log.d(TAG, "Ad dismissed fullscreen content.");
                         rewardedInterstitialAd = null;
                     }
+
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                        // Called when ad fails to show.
+                        Log.e(TAG, "Ad failed to show fullscreen content.");
+                        rewardedInterstitialAd = null;
+                    }
+
+                    @Override
+                    public void onAdImpression() {
+                        // Called when an impression is recorded for an ad.
+                        Log.d(TAG, "Ad recorded an impression.");
+                    }
+
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        // Called when ad is shown.
+                        Log.d(TAG, "Ad showed fullscreen content.");
+                    }
                 });
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError loadAdError) {
+                makeToast("onAdFailedToLoad - " + loadAdError);
+                rewardedInterstitialAd = null;
+            }
+        });
     }
 
 
@@ -786,54 +775,49 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         String strTransportMode = "TransportMode.DRIVING";
 
         String serverKey = "AIzaSyB4hJ-5vcOeTOsAiK8CpQ5uPD4D7LPArIE";
-        GoogleDirection.withServerKey(serverKey)
-                .from(srcLatLng)
-                .to(destLatLng)
-                .transitMode(strTransportMode)
-                .transportMode(strTransportMode)
-                .execute(new DirectionCallback() {
-                    //    public TextView dynTextView;
+        GoogleDirection.withServerKey(serverKey).from(srcLatLng).to(destLatLng).transitMode(strTransportMode).transportMode(strTransportMode).execute(new DirectionCallback() {
+            //    public TextView dynTextView;
 
-                    @SuppressLint({"ResourceAsColor", "RestrictedApi"})
-                    @Override
-                    public void onDirectionSuccess(Direction direction, String rawBody) {
-                        // Do something here
+            @SuppressLint({"ResourceAsColor", "RestrictedApi"})
+            @Override
+            public void onDirectionSuccess(Direction direction, String rawBody) {
+                // Do something here
 
-                        String status = direction.getStatus();
-                        if (status.equals(RequestResult.OK)) {
-                            // Do something
-                            Route route = direction.getRouteList().get(0);
-                            Leg leg = route.getLegList().get(0);
+                String status = direction.getStatus();
+                if (status.equals(RequestResult.OK)) {
+                    // Do something
+                    Route route = direction.getRouteList().get(0);
+                    Leg leg = route.getLegList().get(0);
 
-                            ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
-                            PolylineOptions polylineOptions = DirectionConverter.createPolyline(getApplicationContext(), directionPositionList, 5, Color.BLUE);
-                            polyLineRoute = MyGmap.addPolyline(polylineOptions);
+                    ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
+                    PolylineOptions polylineOptions = DirectionConverter.createPolyline(getApplicationContext(), directionPositionList, 5, Color.BLUE);
+                    polyLineRoute = MyGmap.addPolyline(polylineOptions);
 
 
-                            Info distanceInfo = leg.getDistance();
-                            Info durationInfo = leg.getDuration();
-                            String distance = distanceInfo.getText();
-                            String duration = durationInfo.getText();
+                    Info distanceInfo = leg.getDistance();
+                    Info durationInfo = leg.getDuration();
+                    String distance = distanceInfo.getText();
+                    String duration = durationInfo.getText();
 
-                            Snackbar.make(findViewById(R.id.rl_main), "Distance - " + distance + "\n Duration, generally - " + duration, Snackbar.LENGTH_LONG).show();
-
-
-                            fabTurnByTurnDirections.setVisibility(View.VISIBLE);
+                    Snackbar.make(findViewById(R.id.rl_main), "Distance - " + distance + "\n Duration, generally - " + duration, Snackbar.LENGTH_LONG).show();
 
 
-                        } else if (status.equals(RequestResult.NOT_FOUND)) {
-                            // Do something
-                            makeToast("fails :/ ");
-                        }
+                    fabTurnByTurnDirections.setVisibility(View.VISIBLE);
 
 
-                    }
+                } else if (status.equals(RequestResult.NOT_FOUND)) {
+                    // Do something
+                    makeToast("fails :/ ");
+                }
 
-                    @Override
-                    public void onDirectionFailure(Throwable t) {
-                        // Do something here
-                    }
-                });
+
+            }
+
+            @Override
+            public void onDirectionFailure(Throwable t) {
+                // Do something here
+            }
+        });
 
         //     }
 
@@ -879,8 +863,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             case MotionEvent.ACTION_POINTER_UP:
                 break;
             case MotionEvent.ACTION_MOVE:
-                FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) view
-                        .getLayoutParams();
+                FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) view.getLayoutParams();
                 layoutParams.leftMargin = X - _xDelta;
                 layoutParams.topMargin = Y - _yDelta;
                 layoutParams.rightMargin = -250;
@@ -942,7 +925,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                 processLocation(location);
                 locationUpdates();
 
-           //     Toast.makeText(getApplicationContext(), location.getLatitude() + " : " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+                //     Toast.makeText(getApplicationContext(), location.getLatitude() + " : " + location.getLongitude(), Toast.LENGTH_SHORT).show();
             }
         };
         MyLocation myLocation = new MyLocation();
@@ -963,9 +946,8 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
     private void processLocation(Location location) {
 
         if (MyLocation != null)
-            if (MyLocation != location)
+            if (Math.round(MyLocation.getLatitude() * 100) / 100.0 != Math.round(location.getLatitude() * 100) / 100.0)
                 makeToast("New Location Update - " + location.toString());
-            else makeToast("Still!");
         // Logic to handle location object
         MyLocation = location;
 
@@ -990,22 +972,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
                     streetViewPos = new LatLng(addressLatitude, addressLongitude);
                     streetViewPanorama.setPosition(streetViewPos, 50000);
-                    rgViews = (RadioGroup) findViewById(R.id.rg_views);
 
-
-                    mapSize.setOnClickListener(new View.OnClickListener() {
-                        @SuppressLint("SuspiciousIndentation")
-                        @Override
-                        public void onClick(View v) {
-                            MyGmap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-                                @Override
-                                public void onMapLongClick(@NonNull LatLng latLng) {
-                                    showReminderAlertDialog(latLng);
-                                }
-                            });
-                            fsMap();
-                        }
-                    });
 
                     rgViews.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
@@ -1014,19 +981,13 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
                             if (checkedId == R.id.rb_dark) {  //dark
                                 MyGmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                                MyGmap.setMapStyle(
-                                        MapStyleOptions.loadRawResourceStyle(
-                                                getApplicationContext(), R.raw.dark_style));
+                                MyGmap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getApplicationContext(), R.raw.dark_style));
                             } else if (checkedId == R.id.rb_retro) {  //retro
                                 MyGmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                                MyGmap.setMapStyle(
-                                        MapStyleOptions.loadRawResourceStyle(
-                                                getApplicationContext(), R.raw.norm_style));
+                                MyGmap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getApplicationContext(), R.raw.norm_style));
                             } else if (checkedId == R.id.rb_sat) {  //retro
                                 MyGmap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                                MyGmap.setMapStyle(
-                                        MapStyleOptions.loadRawResourceStyle(
-                                                getApplicationContext(), R.raw.gray_style));
+                                MyGmap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getApplicationContext(), R.raw.gray_style));
                             }
                         }
                     });
@@ -1035,12 +996,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                     streetHandler.postDelayed(new Runnable() {
                         public void run() {
                             //do something
-                            mStreetViewPanoramaCamera =
-                                    new StreetViewPanoramaCamera.Builder()
-                                            .zoom(mStreetViewPanorama.getPanoramaCamera().zoom)
-                                            .tilt(mStreetViewPanorama.getPanoramaCamera().tilt)
-                                            .bearing(mStreetViewPanorama.getPanoramaCamera().bearing - 60)
-                                            .build();
+                            mStreetViewPanoramaCamera = new StreetViewPanoramaCamera.Builder().zoom(mStreetViewPanorama.getPanoramaCamera().zoom).tilt(mStreetViewPanorama.getPanoramaCamera().tilt).bearing(mStreetViewPanorama.getPanoramaCamera().bearing - 60).build();
                             mStreetViewPanorama.animateTo(mStreetViewPanoramaCamera, 1000);
                             streetHandler.postDelayed(this, streetDelay);
 
@@ -1060,8 +1016,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                                             TxPlaceDetails.setText("a Place, searched...\n\n" + (String.valueOf(getAddress(mStreetViewPanorama.getLocation().position.latitude, mStreetViewPanorama.getLocation().position.longitude).get(0).getAddressLine(0).toString())));
                                     } else {
                                         delayCount++;
-                                        if (delayCount == 1)
-                                            pd.setMessage("fetching Location.");
+                                        if (delayCount == 1) pd.setMessage("fetching Location.");
                                         else if (delayCount == 2)
                                             pd.setMessage("fetching Location..");
                                         else if (delayCount == 3)
@@ -1092,32 +1047,23 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
                 }
             });
         }
-
-
-        //    makeToast("Latitude - " + location.getLatitude() + "\n Longitude - " + location.getLongitude());
-
-        //yet2implUpdates
-
-
     }
 
     @SuppressLint("MissingPermission")
     private void locationUpdates() {
 
         locationRequest = LocationRequest.create();
-        locationRequest.setInterval(60000);
-        locationRequest.setSmallestDisplacement(5);
+        locationRequest.setInterval(30000);
+        locationRequest.setSmallestDisplacement(1);
         locationRequest.setFastestInterval(10000);
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
 //instantiating the LocationCallBack
         locationCallback = new LocationCallback() {
             @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult != null) {
-                    Location location = locationResult.getLastLocation();
-                    processLocation(location);
-                }
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                Location location = locationResult.getLastLocation();
+                processLocation(location);
             }
         };
 
@@ -1142,24 +1088,21 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         switch (requestCode) {
             case LOB_BG_P: {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     {
                         makeToast("P Grantd!");
-                        LocationServices.getGeofencingClient(MainActivity.this).addGeofences(geofencingRequest, pendingIntentGeoFence)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void unused) {
-                                        makeToast("GeoF added!");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        makeToast("GeoFence Error - " + e);
-                                    }
-                                });
+                        LocationServices.getGeofencingClient(MainActivity.this).addGeofences(geofencingRequest, pendingIntentGeoFence).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                makeToast("GeoF added!");
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                makeToast("GeoFence Error - " + e);
+                            }
+                        });
 
                     }
                     // permission was granted, yay! Do the
@@ -1192,25 +1135,23 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             @SuppressLint("PotentialBehaviorOverride")
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
-                if (marker.getTitle() != null)
-                    if (!marker.getTitle().startsWith("R")) {
-                        makeToast(marker.getTitle());
-                        if (polyLineRoute != null)
-                            polyLineRoute.remove();
-                        InitRoutes(mLatLng, marker.getPosition());
-                    } else {
-                        //      addrs.setTextSize(20);
-                        String textMsg = "Sending from Street ... \n " + mDate + "\t - \t" + mTime + "\n I'm @ \n" + mAddress;
-                        Intent sendIntent = new Intent();
-                        sendIntent.setAction(Intent.ACTION_SEND);
-                        sendIntent.putExtra(Intent.EXTRA_TEXT, textMsg);
-                        sendIntent.setType("text/plain");
+                if (marker.getTitle() != null) if (!marker.getTitle().startsWith("R")) {
+                    makeToast(marker.getTitle());
+                    if (polyLineRoute != null) polyLineRoute.remove();
+                    InitRoutes(mLatLng, marker.getPosition());
+                } else {
+                    //      addrs.setTextSize(20);
+                    String textMsg = "Sending from Street ... \n " + mDate + "\t - \t" + mTime + "\n I'm @ \n" + mAddress;
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, textMsg);
+                    sendIntent.setType("text/plain");
 
-                        if (sendIntent.resolveActivity(getPackageManager()) != null) {
-                            startActivity(sendIntent);
-                        }
-
+                    if (sendIntent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(sendIntent);
                     }
+
+                }
                 return true;
             }
         });
@@ -1237,9 +1178,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
-            boolean success = googleMap.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                            this, R.raw.norm_style));
+            boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.norm_style));
 
             if (!success) {
                 makeToast("Style parsing failed.");
@@ -1278,17 +1217,11 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<span style=\"color: #000000\"><b>" + mAddresses[0] + "," + mAddresses[1] + "," + mAddresses[2] + "," + "<br> &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; " + mAddresses[3] + "," + mAddresses[4] + "</b></span>"));
             icon = BitmapDescriptorFactory.fromBitmap(bmp);
         }
-        markerOptions = new MarkerOptions()
-                .position(mLatLng).icon(icon);
+        markerOptions = new MarkerOptions().position(mLatLng).icon(icon);
 
         //    marker = googleMap.addMarker(markerOptions);
         markerAddress = MyGmap.addMarker(markerOptions);
-        CameraPosition cameraPosition = new CameraPosition.Builder().
-                target(mLatLng).
-                tilt(55).
-                zoom(15).
-                bearing(0).
-                build();
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(mLatLng).tilt(55).zoom(15).bearing(0).build();
 
         MyGmap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
@@ -1346,8 +1279,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
 
         // on below line we are creating a retrofit
         // builder and passing our base url
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.foursquare.com/")
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.foursquare.com/")
                 // on below line we are calling add Converter
                 // factory as GSON converter factory.
                 .addConverterFactory(GsonConverterFactory.create())
@@ -1398,12 +1330,7 @@ public class MainActivity extends AppCompatActivity implements OnUserEarnedRewar
             MyGmap.addMarker(markerOptionsNearby);
         }
 
-        CameraPosition cameraPosition = new CameraPosition.Builder().
-                target(mLatLng).
-                tilt(0).
-                zoom(15).
-                bearing(0).
-                build();
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(mLatLng).tilt(0).zoom(15).bearing(0).build();
 
         MyGmap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
